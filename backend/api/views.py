@@ -32,7 +32,7 @@ def api_home(request, *args, **kwargs):
 def api_create(request, *args, **kwargs):
      serializer = ProductSerializer(data=request.data)
      if serializer.is_valid(raise_exception=True):
-        #  instance = serializer.save()
+         instance = serializer.save()
          print(serializer.data)
          return Response(serializer.data)
     

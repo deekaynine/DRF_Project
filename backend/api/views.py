@@ -10,6 +10,7 @@ from products.serializers import ProductSerializer
 
 # Create your views here.
 
+# non DRF way
 # def api_home(request, *args, **kwargs):
 #     model_data = Product.objects.all().order_by("?").first()
 #     data = {}
@@ -26,3 +27,13 @@ def api_home(request, *args, **kwargs):
           data = ProductSerializer(product_queryset).data
           print(data)
      return Response(data)
+
+@api_view(['POST'])
+def api_create(request, *args, **kwargs):
+     serializer = ProductSerializer(data=request.data)
+     if serializer.is_valid(raise_exception=True):
+        #  instance = serializer.save()
+         print(serializer.data)
+         return Response(serializer.data)
+    
+    

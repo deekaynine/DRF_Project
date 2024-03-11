@@ -28,8 +28,9 @@ def api_home(request, *args, **kwargs):
           print(data)
      return Response(data)
 
-@api_view(['POST'])
+@api_view(['GET','POST'])
 def api_create(request, *args, **kwargs):
+     #if request.method = "GET":
      serializer = ProductSerializer(data=request.data)
      if serializer.is_valid(raise_exception=True):
          instance = serializer.save()

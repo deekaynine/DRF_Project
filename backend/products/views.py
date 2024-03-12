@@ -5,6 +5,8 @@ from rest_framework import generics, mixins, permissions, authentication
 from .models import Product
 from .serializers import ProductSerializer
 
+from api.authentication import TokenAuthenticatoin
+
 # Create your views here.
 
 class ProductDetailAPIView(generics.RetrieveAPIView):
@@ -34,8 +36,8 @@ class ProductDestroyAPIView(generics.DestroyAPIView):
 class ProductListCreateAPIView(generics.ListCreateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    authentication_classes=[authentication.SessionAuthentication]
-    permission_classes=[permissions.IsAuthenticatedOrReadOnly]
+    authentication_classes=[authentication.SessionAuthentication, TokenAuthenticatoin]
+    permission_classes=[permissions.IsAdminUser, permissions.IsAuthenticated]
 
     def perform_create(self, serializer):
         # serializer.save(user=self.request.user)

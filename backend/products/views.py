@@ -9,6 +9,28 @@ from api.authentication import TokenAuthenticatoin
 
 # Create your views here.
 
+class ProductListCreateAPIView(generics.ListCreateAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+    authentication_classes=[authentication.SessionAuthentication, TokenAuthenticatoin]
+    permission_classes=[permissions.IsAdminUser, permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        title = serializer.validated_data.get('title') 
+        content = serializer.validated_data.get('content') or None
+        if content is None:
+            content=title
+        serializer.save(user=self.request.user, content=content)
+
+    def get_queryset(self, *args, **kwargs):
+        qs = super().get_queryset(*args, **kwargs)
+        request = self.request
+        print(request.user)
+        user = request.user
+        if not user.is_authenticated:
+            return Product.objects.none()
+        return qs.filter(user=request.user)
+
 class ProductDetailAPIView(generics.RetrieveAPIView):
     queryset= Product.objects.all()
     serializer_class = ProductSerializer
@@ -31,22 +53,7 @@ class ProductDestroyAPIView(generics.DestroyAPIView):
 
     def perform_destroy(self, instance):
         super().perform_destroy(instance)
-
-
-class ProductListCreateAPIView(generics.ListCreateAPIView):
-    queryset = Product.objects.all()
-    serializer_class = ProductSerializer
-    authentication_classes=[authentication.SessionAuthentication, TokenAuthenticatoin]
-    permission_classes=[permissions.IsAdminUser, permissions.IsAuthenticated]
-
-    def perform_create(self, serializer):
-        # serializer.save(user=self.request.user)
-        print(serializer.validated_data)
-        title = serializer.validated_data.get('title') 
-        content = serializer.validated_data.get('content') or None
-        if content is None:
-            content=title
-        serializer.save(content=content)
+ 
 
 class ProductCreateAPIView(generics.CreateAPIView):
     queryset = Product.objects.all()

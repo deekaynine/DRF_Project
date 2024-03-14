@@ -4,12 +4,13 @@ from rest_framework import generics, mixins, permissions, authentication
 
 from .models import Product
 from .serializers import ProductSerializer
+from api.mixins import (UserQuerysetMixin)
 
 from api.authentication import TokenAuthenticatoin
 
 # Create your views here.
 
-class ProductListCreateAPIView(generics.ListCreateAPIView):
+class ProductListCreateAPIView(UserQuerysetMixin,generics.ListCreateAPIView,):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     authentication_classes=[authentication.SessionAuthentication, TokenAuthenticatoin]
@@ -22,14 +23,16 @@ class ProductListCreateAPIView(generics.ListCreateAPIView):
             content=title
         serializer.save(user=self.request.user, content=content)
 
-    def get_queryset(self, *args, **kwargs):
-        qs = super().get_queryset(*args, **kwargs)
-        request = self.request
-        print(request.user)
-        user = request.user
-        if not user.is_authenticated:
-            return Product.objects.none()
-        return qs.filter(user=request.user)
+    # Using mixin instead
+    #
+    # def get_queryset(self, *args, **kwargs):
+    #     qs = super().get_queryset(*args, **kwargs)
+    #     request = self.request
+    #     print(request.user)
+    #     user = request.user
+    #     if not user.is_authenticated:
+    #         return Product.objects.none()
+    #     return qs.filter(user=request.user)
 
 class ProductDetailAPIView(generics.RetrieveAPIView):
     queryset= Product.objects.all()

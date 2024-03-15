@@ -6,14 +6,14 @@ from .models import Product
 from .serializers import ProductSerializer
 from api.mixins import (UserQuerysetMixin)
 
-from api.authentication import TokenAuthenticatoin
+from api.authentication import TokenAuthentication
 
 # Create your views here.
 
 class ProductListCreateAPIView(UserQuerysetMixin,generics.ListCreateAPIView,):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    authentication_classes=[authentication.SessionAuthentication, TokenAuthenticatoin]
+    authentication_classes=[authentication.SessionAuthentication, TokenAuthentication]
     permission_classes=[permissions.IsAdminUser, permissions.IsAuthenticated]
 
     def perform_create(self, serializer):

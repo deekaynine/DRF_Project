@@ -16,7 +16,6 @@ class UserPublicSerializer(serializers.Serializer):
     # Because this serializer is nested in the Product serializer serializing the Product Model
     def get_other_products(self,obj):
         request=self.context.get('request')
-        print(obj)
         user = obj
         my_products_qs = user.product_set.all()
         return UserProductInlineSerializer(my_products_qs, many=True, context=self.context).data

@@ -58,7 +58,7 @@ class Profile(models.Model):
 
         super(Profile, self).save(*args, **kwargs)
 
-
+#signals
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
         Profile.objects.create(user=instance)

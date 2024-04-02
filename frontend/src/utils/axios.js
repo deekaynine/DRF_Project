@@ -1,7 +1,8 @@
 import axios from "axios"
+import { API_BASE_URL } from "./constants"
 
 const apiInstance = axios.create({
-  baseUrl: "http://127.0.0.1:8000/api/",
+  baseURL: API_BASE_URL,
   timeout: 5000,
   headers: {
     "Content-Type": "application/json",

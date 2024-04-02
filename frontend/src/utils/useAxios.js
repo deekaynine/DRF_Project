@@ -1,6 +1,6 @@
 import axios from "axios"
 import { isAccessTokenExpired, setAuthUser, getRefreshToken } from "./auth"
-import { BASE_URL } from "./constants"
+import { API_BASE_URL } from "./constants"
 import Cookies from "js-cookie"
 
 // Retrieves access token automatically for you since they are usually short-lived
@@ -9,7 +9,7 @@ const useAxios = async () => {
   const refresh_token = Cookies.get("refresh_token")
 
   const axiosInstance = axios.create({
-    baseURL: BASE_URL,
+    baseURL: API_BASE_URL,
     headers: {
       Authorization: `Bearer ${access_token}`,
     },

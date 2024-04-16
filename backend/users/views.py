@@ -23,10 +23,11 @@ class RegisterView(generics.CreateAPIView):
     permission_classes = ([AllowAny])
     serializer_class = RegisterSerializer
 
-class PasswordRestView(generics.RetrieveAPIView):
+class PasswordResetView(generics.RetrieveAPIView):
     permission_classes = (AllowAny,)
     serializer_class = UserSerializer
 
+    #override get method
     def get_object(self):
         email = self.kwargs['email']
         user = User.objects.get(email=email)
@@ -41,7 +42,7 @@ class PasswordRestView(generics.RetrieveAPIView):
         otp = user.otp
 
         link = f"http://localhost:5173/create-new-password?otp={otp}&uidb64={uidb64}"
-
+        print(link)
         # Send Email
 
         return user

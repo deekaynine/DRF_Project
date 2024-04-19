@@ -49,7 +49,8 @@ class PasswordResetView(generics.RetrieveAPIView):
 
         return user
     
-    # This view takes in 
+    # Override create method and pass payload to verify user
+    # Then save password
     class PasswordChangeView(generics.CreateAPIView):
         permission_classes=[AllowAny,]
         serializer_class= UserSerializer

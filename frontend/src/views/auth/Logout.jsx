@@ -9,7 +9,7 @@ function Logout() {
   }, [])
   return (
     <div>
-      <h1>Logout</h1>
+      <h1>You have been logged out</h1>
       <Link to={"/register"}>Register</Link>
       <Link to={"/login"}>Login</Link>
     </div>

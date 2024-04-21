@@ -1,5 +1,5 @@
 from django.contrib import admin
-from store.models import Product, Category
+from store.models import Product, Category, Gallery, Specification, Size , Color
 
 # Register your models here.
 

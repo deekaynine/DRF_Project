@@ -1,5 +1,9 @@
 from django.contrib import admin
-from store.models import Product, Category, Gallery, Specification, Size , Color
+from store.models import Product, Category, Gallery, Specification, Size , Color, Cart, CartOrder, CartOrderItem
+from users.models import User
+
+# Inlines creates tabs in admin panel
+# Inlines must have a foreign key to the referenced model (product)
 
 class GalleryInline(admin.TabularInline):
     model = Gallery
@@ -13,6 +17,7 @@ class SizeInline(admin.TabularInline):
 class ColorInline(admin.TabularInline):
     model = Color
 
+
 class ProductAdmin(admin.ModelAdmin):
     list_display = ['title', 'price', 'category', 'shipping_amount', 'in_stock', 'vendor', 'featured']
     list_editable = ['featured']
@@ -24,3 +29,6 @@ class ProductAdmin(admin.ModelAdmin):
 
 admin.site.register(Category)
 admin.site.register(Product, ProductAdmin)
+admin.site.register(Cart)
+admin.site.register(CartOrder)
+admin.site.register(CartOrderItem)

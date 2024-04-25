@@ -10,5 +10,11 @@ urlpatterns = [
     path('user/token/refresh/', TokenRefreshView.as_view()),
     path('user/register/', user_views.RegisterView.as_view()),
     path('user/password-reset/<email>/', user_views.PasswordResetView.as_view()),
-    path('user/password-change/', user_views.PasswordChangeView.as_view())
+    path('user/password-change/', user_views.PasswordChangeView.as_view()),
+    # Store Endpoints
+
+    path('category/', store_views.CategoryListAPIView.as_view() ),
+    path('products/', store_views.ProductListAPIView.as_view()),
+    path('product/<slug>/', store_views.ProductDetailAPIView.as_view())
+
 ]

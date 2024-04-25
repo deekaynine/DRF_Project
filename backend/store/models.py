@@ -52,11 +52,11 @@ class Product(models.Model):
     in_stock = models.BooleanField(default=True)
     status = models.CharField(max_length=100, choices=STATUS, default="published")
     featured = models.BooleanField(default=False)
-    views = models.PositiveIntegerField(default=0)
-    rating = models.PositiveIntegerField(default=0)
+    views = models.PositiveIntegerField(default=0, null=True, blank=True)
+    rating = models.IntegerField(default=0, null=True, blank=True)
     vendor = models.ForeignKey(Vendor, on_delete=models.CASCADE)
     pid = ShortUUIDField(unique=True,length=10, alphabet="abcdefghijk12345")
-    slug=models.SlugField(unique=True)
+    slug = models.SlugField(null=True, blank=True)
     date= models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -84,8 +84,8 @@ class Product(models.Model):
     def save(self, *args, **kwargs):
         self.rating = self.product_rating()
 
-        if self.slug== "" or self.slug == None:
-            self.slug = slugify(self.name)
+        if self.slug == "" or self.slug == None:
+            self.slug = slugify(self.title)
         
         super(Product, self).save(*args, **kwargs)
 

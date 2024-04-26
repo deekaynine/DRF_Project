@@ -11,18 +11,25 @@ import CreatePassword from "./views/auth/CreatePassword"
 import StoreHeader from "./views/base/StoreHeader"
 import StoreFooter from "./views/base/StoreFooter"
 
+import Products from "./views/store/Products"
+import ProductDetail from "./views/store/ProductDetail"
+
 function App() {
   return (
     <BrowserRouter>
       <StoreHeader />
       <Routes>
-        <Route path="/" element={<Dashboard />} />
+        <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/logout" element={<Logout />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/create-new-password" element={<CreatePassword />} />
         <Route path="/dashboard" element={<Dashboard />} />
+
+        {/* Store Components */}
+        <Route path="/" element={<Products />} />
+        <Route path="/detail/:slug/" element={<ProductDetail />} />
       </Routes>
       <StoreFooter />
     </BrowserRouter>

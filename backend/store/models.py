@@ -251,14 +251,12 @@ class Review(models.Model):
         verbose_name_plural = "Reviews & Rating"
         ordering = ["-date"]
         
-    # Method to return a string representation of the object
     def __str__(self):
         if self.product:
             return self.product.title
         else:
             return "Review"
         
-    # Method to get the rating value
     def get_rating(self):
         return self.rating
     

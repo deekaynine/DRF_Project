@@ -5,15 +5,21 @@ import apiInstance from "../../utils/axios"
 
 function ProductDetail() {
   const [product, setProduct] = useState([])
+  const [gallery, setGallery] = useState([])
   const [specifications, setSpecifications] = useState([])
+  const [color, setColor] = useState([])
+  const [size, setSize] = useState([])
 
   const params = useParams()
 
   useEffect(() => {
-    apiInstance.get(`products/${params.slug}/`).then((res) => {
+    apiInstance.get(`product/${params.slug}/`).then((res) => {
       console.log(res.data)
       setProduct(res.data)
+      setGallery(res.data.gallery)
       setSpecifications(res.data.specification)
+      setColor(res.data.color)
+      setSize(res.data.size)
     })
   }, [])
   return (
@@ -26,6 +32,7 @@ function ProductDetail() {
               <div className="col-md-6 mb-4 mb-md-0">
                 {/* Gallery */}
                 <div className="">
+                  {/* Main Image */}
                   <div className="row gx-2 gx-lg-3">
                     <div className="col-12 col-lg-12">
                       <div className="lightbox">
@@ -43,59 +50,23 @@ function ProductDetail() {
                       </div>
                     </div>
                   </div>
+                  {/* Sub Images */}
                   <div className="mt-3 d-flex">
-                    <div className="p-3">
-                      <img
-                        src="https://mdbootstrap.com/img/Photos/Slides/1.jpg"
-                        style={{
-                          width: 100,
-                          height: 100,
-                          objectFit: "cover",
-                          borderRadius: 10,
-                        }}
-                        alt="Gallery image 1"
-                        className="ecommerce-gallery-main-img active w-100 rounded-4"
-                      />
-                    </div>
-                    <div className="p-3">
-                      <img
-                        src="https://mdbootstrap.com/img/Photos/Slides/1.jpg"
-                        style={{
-                          width: 100,
-                          height: 100,
-                          objectFit: "cover",
-                          borderRadius: 10,
-                        }}
-                        alt="Gallery image 1"
-                        className="ecommerce-gallery-main-img active w-100 rounded-4"
-                      />
-                    </div>
-                    <div className="p-3">
-                      <img
-                        src="https://mdbootstrap.com/img/Photos/Slides/1.jpg"
-                        style={{
-                          width: 100,
-                          height: 100,
-                          objectFit: "cover",
-                          borderRadius: 10,
-                        }}
-                        alt="Gallery image 1"
-                        className="ecommerce-gallery-main-img active w-100 rounded-4"
-                      />
-                    </div>
-                    <div className="p-3">
-                      <img
-                        src="https://mdbootstrap.com/img/Photos/Slides/1.jpg"
-                        style={{
-                          width: 100,
-                          height: 100,
-                          objectFit: "cover",
-                          borderRadius: 10,
-                        }}
-                        alt="Gallery image 1"
-                        className="ecommerce-gallery-main-img active w-100 rounded-4"
-                      />
-                    </div>
+                    {gallery?.map((g, index) => (
+                      <div className="p-3" key={index}>
+                        <img
+                          src={g.image}
+                          style={{
+                            width: 100,
+                            height: 100,
+                            objectFit: "cover",
+                            borderRadius: 10,
+                          }}
+                          alt="Gallery image 1"
+                          className="ecommerce-gallery-main-img active w-100 rounded-4"
+                        />
+                      </div>
+                    ))}
                   </div>
                 </div>
                 {/* Gallery */}
@@ -155,30 +126,15 @@ function ProductDetail() {
                           </th>
                           <td>{product.category?.title}</td>
                         </tr>
-                        <tr>
-                          <th className="ps-0 w-25" scope="row">
-                            <strong>Vat</strong>
-                          </th>
-                          <td>$1.9</td>
-                        </tr>
-                        <tr>
-                          <th className="ps-0 w-25" scope="row">
-                            <strong>Model</strong>
-                          </th>
-                          <td>Shirt 5407X</td>
-                        </tr>
-                        <tr>
-                          <th className="ps-0 w-25" scope="row">
-                            <strong>Material</strong>
-                          </th>
-                          <td>Cotton 80%</td>
-                        </tr>
-                        <tr>
-                          <th className="ps-0 w-25" scope="row">
-                            <strong>Delivery</strong>
-                          </th>
-                          <td>USA, Europe</td>
-                        </tr>
+                        {/* Specifications */}
+                        {specifications.map((s, index) => (
+                          <tr key={index}>
+                            <th className="ps-0 w-25" scope="row">
+                              <strong>{s.title}</strong>
+                            </th>
+                            <td>{s.content}</td>
+                          </tr>
+                        ))}
                       </tbody>
                     </table>
                   </div>
@@ -202,103 +158,62 @@ function ProductDetail() {
                       </div>
 
                       {/* Size */}
-                      <div className="col-md-6 mb-4">
-                        <div className="form-outline">
-                          <label className="form-label" htmlFor="typeNumber">
-                            <b>Size:</b> XS
-                          </label>
-                        </div>
-                        <div className="d-flex">
-                          <div key={1} className="me-2">
-                            <input
-                              type="hidden"
-                              className="size_name"
-                              value={"XS"}
-                            />
-                            <button className="btn btn-secondary size_button">
-                              XS
-                            </button>
+
+                      {size?.length > 0 ? (
+                        // Render something when the 'size' array has items
+                        <div className="col-md-6 mb-4">
+                          <div className="form-outline">
+                            <label className="form-label" htmlFor="typeNumber">
+                              <b>Size:</b> S
+                            </label>
                           </div>
-                          <div key={1} className="me-2">
-                            <input
-                              type="hidden"
-                              className="size_name"
-                              value={"XXL"}
-                            />
-                            <button className="btn btn-secondary size_button">
-                              XXL
-                            </button>
-                          </div>
-                          <div key={1} className="me-2">
-                            <input
-                              type="hidden"
-                              className="size_name"
-                              value={"XL"}
-                            />
-                            <button className="btn btn-secondary size_button">
-                              XL
-                            </button>
+                          <div className="d-flex">
+                            {size?.map((s, index) => (
+                              <div key={index} className="me-2">
+                                <input
+                                  type="hidden"
+                                  className="size_name"
+                                  value={s.name}
+                                />
+                                <button className="btn btn-secondary size_button">
+                                  {s.name}
+                                </button>
+                              </div>
+                            ))}
                           </div>
                         </div>
-                      </div>
+                      ) : (
+                        // Render empty div
+                        <div></div>
+                      )}
 
                       {/* Colors */}
 
                       <div className="col-md-6 mb-4">
                         <div className="form-outline">
                           <label className="form-label" htmlFor="typeNumber">
-                            <b>Color:</b> <span>Red</span>
+                            <b>Color:</b> <span>Black</span>
                           </label>
                         </div>
                         <div className="d-flex">
-                          <div key={1}>
-                            <input
-                              type="hidden"
-                              className="color_name"
-                              value={1}
-                            />
-                            <input
-                              type="hidden"
-                              className="color_image"
-                              value={1}
-                            />
-                            <button
-                              className="btn p-3 me-2 color_button"
-                              style={{ background: "red" }}
-                            ></button>
-                          </div>
-                          <div key={1}>
-                            <input
-                              type="hidden"
-                              className="color_name"
-                              value={1}
-                            />
-                            <input
-                              type="hidden"
-                              className="color_image"
-                              value={1}
-                            />
-                            <button
-                              className="btn p-3 me-2 color_button"
-                              style={{ background: "yellow" }}
-                            ></button>
-                          </div>
-                          <div key={1}>
-                            <input
-                              type="hidden"
-                              className="color_name"
-                              value={1}
-                            />
-                            <input
-                              type="hidden"
-                              className="color_image"
-                              value={1}
-                            />
-                            <button
-                              className="btn p-3 me-2 color_button"
-                              style={{ background: "green" }}
-                            ></button>
-                          </div>
+                          {color?.map((c, index) => (
+                            <div key={index}>
+                              <input
+                                type="hidden"
+                                className="color_name"
+                                value={index}
+                              />
+                              <input
+                                type="hidden"
+                                className="color_image"
+                                value={index}
+                              />
+                              <button
+                                className="btn p-3 me-2 color_button"
+                                style={{ background: `${c.color_code}` }}
+                              ></button>
+                            </div>
+                          ))}
                         </div>
                         <hr />
                       </div>

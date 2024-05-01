@@ -156,11 +156,8 @@ function ProductDetail() {
                           />
                         </div>
                       </div>
-
                       {/* Size */}
-
                       {size?.length > 0 ? (
-                        // Render something when the 'size' array has items
                         <div className="col-md-6 mb-4">
                           <div className="form-outline">
                             <label className="form-label" htmlFor="typeNumber">
@@ -183,7 +180,6 @@ function ProductDetail() {
                           </div>
                         </div>
                       ) : (
-                        // Render empty div
                         <div></div>
                       )}
 

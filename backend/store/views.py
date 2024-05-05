@@ -31,6 +31,7 @@ class ProductDetailAPIView(generics.RetrieveAPIView):
         slug = self.kwargs['slug']
         return Product.objects.get(slug=slug)
     
+# To do: create vendor default shipping amount and product shipping amount if vendor gets product from a third party
 class CartApiView(generics.ListCreateAPIView):
     queryset = Cart.objects.all()
     serializer_class = CartSerializer
@@ -40,7 +41,7 @@ class CartApiView(generics.ListCreateAPIView):
         payload = request.data
 
         product_id = payload['product_id']
-        user_id = payload['user_ id']
+        user_id = payload['user_id']
         qty = payload['qty']
         price = payload['price']
         shipping_amount = payload['shipping_amount']
@@ -50,6 +51,7 @@ class CartApiView(generics.ListCreateAPIView):
         cart_id = payload['cart_id']
 
         product = Product.objects.get(id=product_id)
+
         if user_id != "undefined":
             user = User.objects.get(id=user_id)
         else:
@@ -76,8 +78,8 @@ class CartApiView(generics.ListCreateAPIView):
             cart.country = country
             cart.cart_id = cart_id
 
-            service_fee_percentage = 10/100
-            cart.service_fee = service_fee_percentage * cart.sub_total
+            service_fee_percentage = 10 / 100
+            cart.service_fee = Decimal(service_fee_percentage) * cart.sub_total
 
             cart.total = cart.sub_total + cart.shipping_amount + cart.service_fee + cart.tax_fee
             cart.save() 
@@ -98,13 +100,13 @@ class CartApiView(generics.ListCreateAPIView):
             cart.country = country
             cart.cart_id = cart_id
 
-            service_fee_percentage = 10/100
-            cart.service_fee = service_fee_percentage * cart.sub_total
+            service_fee_percentage = 10 / 100
+            cart.service_fee = Decimal(service_fee_percentage) * cart.sub_total
 
             cart.total = cart.sub_total + cart.shipping_amount + cart.service_fee + cart.tax_fee
             cart.save() 
 
-            return Response({'message' : 'Cart Created Successfully'}, status=status.HTTP_201_OK)
+            return Response({'message' : 'Cart Created Successfully'}, status=status.HTTP_201_CREATED)
 
 
     

@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from "react"
 import { useParams } from "react-router-dom"
+import useGetAddress from "../plugin/UserCountry"
+import useGetUserData from "../plugin/UserData"
+import CartID from "../plugin/CardID"
 
 import apiInstance from "../../utils/axios"
 
@@ -14,7 +17,10 @@ function ProductDetail() {
   const [sizeValue, setSizeValue] = useState("Not selected")
   const [qtyValue, setQtyValue] = useState(1)
 
+  const currentAddress = useGetAddress()
+  const userData = useGetUserData()
   const params = useParams()
+  const cart_id = CartID()
 
   useEffect(() => {
     apiInstance.get(`product/${params.slug}/`).then((res) => {
@@ -45,10 +51,24 @@ function ProductDetail() {
     setQtyValue(event.target.value)
   }
 
-  const handleAddToCart = () => {
-    console.log(colorValue)
-    console.log(sizeValue)
-    console.log(qtyValue)
+  const handleAddToCart = async () => {
+    try {
+      const formdata = new FormData()
+      formdata.append("product_id", product.id),
+        formdata.append("user_id", userData?.user_id),
+        formdata.append("qty", qtyValue),
+        formdata.append("price", product.price),
+        formdata.append("shipping_amount", product.shipping_amount),
+        formdata.append("country", currentAddress.country),
+        formdata.append("size", sizeValue),
+        formdata.append("color", colorValue),
+        formdata.append("cart_id", cart_id)
+
+      const response = await apiInstance.post(`cart/`, formdata)
+      console.log(response.data)
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   return (

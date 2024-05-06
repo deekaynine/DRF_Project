@@ -34,7 +34,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         full_name = attrs['full_name']
         if (email and User.objects.filter(email=email).exclude(full_name=full_name).exists()):
             raise serializers.ValidationError(
-                {"email": "Email addresses must be unique."})
+                {"email": "Email already exists"})
         if attrs['password'] != attrs ['password2']:
             raise serializers.ValidationError({"password" : "Passwords do not match"}) 
         return attrs

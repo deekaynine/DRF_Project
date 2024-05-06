@@ -2,6 +2,15 @@ import { useAuthStore } from "../store/auth"
 import axios from "./axios"
 import jwt_decode from "jwt-decode"
 import Cookie from "js-cookie"
+import Swal from "sweetalert2"
+
+const Toast = Swal.mixin({
+  toast: true,
+  position: "top",
+  showConfirmButton: "false",
+  timer: 1500,
+  timerProgressBar: true,
+})
 
 export const login = async (email, password) => {
   try {
@@ -13,7 +22,10 @@ export const login = async (email, password) => {
     if (status === 200) {
       setAuthUser(data.access, data.refresh)
 
-      alert("Logged in successfully")
+      Toast.fire({
+        icon: "success",
+        title: "Login Successfull",
+      })
     }
     return { data, error: null }
   } catch (error) {
@@ -42,7 +54,10 @@ export const register = async (
 
     await login(email, password)
 
-    alert("Registration successful")
+    Toast.fire({
+      icon: "success",
+      title: "Acccount created Successfully",
+    })
     return { data, error: null }
   } catch (error) {
     return {
@@ -56,8 +71,10 @@ export const logout = () => {
   Cookie.remove("access_token")
   Cookie.remove("refresh_token")
   useAuthStore.getState().setUser(null)
-
-  alert("Logged out successfully")
+  Toast.fire({
+    icon: "success",
+    title: "Logged Out Successfully",
+  })
 }
 
 export const setUser = async () => {

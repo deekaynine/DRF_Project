@@ -1,7 +1,32 @@
-import React from "react"
+import React, { useState, useEffect } from "react"
+import apiInstance from "../../utils/axios"
 import { Link } from "react-router-dom"
+import UserData from "../plugin/UserData"
+import CartId from "../plugin/CartID"
 
 function Cart() {
+  const [cart, setCart] = useState([])
+
+  const userData = UserData()
+  const cart_id = CartId()
+
+  const fetchCartData = (cartId, userId) => {
+    const url = userId
+      ? `cart-list/${cartId}/${userId}/`
+      : `cart-list/${cartId}`
+    apiInstance.get(url).then((res) => {
+      setCart(res.data)
+    })
+  }
+
+  if (cart_id !== null || cart_id !== undefined) {
+    if (userData !== undefined) {
+      fetchCartData(cart_id, userData?.user_id)
+    } else {
+      fetchCartData(cart_id, null)
+    }
+  }
+
   return (
     <div>
       <main className="mt-5">
@@ -15,89 +40,94 @@ function Cart() {
                   <div className="col-lg-8 mb-4 mb-md-0">
                     {/* Section: Product list */}
                     <section className="mb-5">
-                      <div className="row border-bottom mb-4">
-                        <div className="col-md-2 mb-4 mb-md-0">
-                          <div
-                            className="bg-image ripple rounded-5 mb-4 overflow-hidden d-block"
-                            data-ripple-color="light"
-                          >
-                            <Link to={""}>
-                              <img
-                                className="w-100"
-                                alt=""
-                                style={{
-                                  height: "100px",
-                                  objectFit: "cover",
-                                  borderRadius: "10px",
-                                }}
-                              />
-                            </Link>
-                            <a href="#!">
-                              <div className="hover-overlay">
-                                <div
-                                  className="mask"
+                      {cart?.map((c, index) => {
+                        ;<div className="row border-bottom mb-4">
+                          <div className="col-md-2 mb-4 mb-md-0">
+                            <div
+                              className="bg-image ripple rounded-5 mb-4 overflow-hidden d-block"
+                              data-ripple-color="light"
+                            >
+                              <Link to={""}>
+                                <img
+                                  className="w-100"
+                                  alt=""
                                   style={{
-                                    backgroundColor: "hsla(0, 0%, 98.4%, 0.2)",
+                                    height: "100px",
+                                    objectFit: "cover",
+                                    borderRadius: "10px",
                                   }}
                                 />
-                              </div>
-                            </a>
-                          </div>
-                        </div>
-                        <div className="col-md-8 mb-4 mb-md-0">
-                          <Link className="fw-bold text-dark mb-4">
-                            Product Name
-                          </Link>
-
-                          <p className="mb-0">
-                            <span className="text-muted me-2">Size:</span>
-                            <span>Size</span>
-                          </p>
-
-                          <p className="mb-0">
-                            <span className="text-muted me-2">Color:</span>
-                            <span>color</span>
-                          </p>
-
-                          <p className="mb-0">
-                            <span className="text-muted me-2">Price:</span>
-                            <span>$10</span>
-                          </p>
-                          <p className="mb-0">
-                            <span className="text-muted me-2">Stock Qty:</span>
-                            <span>qty</span>
-                          </p>
-                          <p className="mb-0">
-                            <span className="text-muted me-2">Vendor:</span>
-                            <span>vendor name</span>
-                          </p>
-                          <p className="mt-3">
-                            <button className="btn btn-danger ">
-                              <small>
-                                <i className="fas fa-trash me-2" />
-                                Remove
-                              </small>
-                            </button>
-                          </p>
-                        </div>
-                        <div className="col-md-2 mb-4 mb-md-0">
-                          <div className="d-flex justify-content-center align-items-center">
-                            <div className="form-outline">
-                              <input
-                                type="number"
-                                className="form-control"
-                                min={1}
-                              />
+                              </Link>
+                              <a href="#!">
+                                <div className="hover-overlay">
+                                  <div
+                                    className="mask"
+                                    style={{
+                                      backgroundColor:
+                                        "hsla(0, 0%, 98.4%, 0.2)",
+                                    }}
+                                  />
+                                </div>
+                              </a>
                             </div>
-                            <button className="ms-2 btn btn-primary">
-                              <i className="fas fa-rotate-right"></i>
-                            </button>
                           </div>
-                          <h5 className="mb-2 mt-3 text-center">
-                            <span className="align-middle">$10</span>
-                          </h5>
+                          <div className="col-md-8 mb-4 mb-md-0">
+                            <Link className="fw-bold text-dark mb-4">
+                              Product Name
+                            </Link>
+
+                            <p className="mb-0">
+                              <span className="text-muted me-2">Size:</span>
+                              <span>Size</span>
+                            </p>
+
+                            <p className="mb-0">
+                              <span className="text-muted me-2">Color:</span>
+                              <span>color</span>
+                            </p>
+
+                            <p className="mb-0">
+                              <span className="text-muted me-2">Price:</span>
+                              <span>$10</span>
+                            </p>
+                            <p className="mb-0">
+                              <span className="text-muted me-2">
+                                Stock Qty:
+                              </span>
+                              <span>qty</span>
+                            </p>
+                            <p className="mb-0">
+                              <span className="text-muted me-2">Vendor:</span>
+                              <span>vendor name</span>
+                            </p>
+                            <p className="mt-3">
+                              <button className="btn btn-danger ">
+                                <small>
+                                  <i className="fas fa-trash me-2" />
+                                  Remove
+                                </small>
+                              </button>
+                            </p>
+                          </div>
+                          <div className="col-md-2 mb-4 mb-md-0">
+                            <div className="d-flex justify-content-center align-items-center">
+                              <div className="form-outline">
+                                <input
+                                  type="number"
+                                  className="form-control"
+                                  min={1}
+                                />
+                              </div>
+                              <button className="ms-2 btn btn-primary">
+                                <i className="fas fa-rotate-right"></i>
+                              </button>
+                            </div>
+                            <h5 className="mb-2 mt-3 text-center">
+                              <span className="align-middle">$10</span>
+                            </h5>
+                          </div>
                         </div>
-                      </div>
+                      })}
 
                       <>
                         <h5>Your Cart Is Empty</h5>

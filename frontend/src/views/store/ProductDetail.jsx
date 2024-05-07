@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react"
 import { useParams } from "react-router-dom"
 import useGetAddress from "../plugin/UserCountry"
 import useGetUserData from "../plugin/UserData"
-import CartID from "../plugin/CardID"
+import CartID from "../plugin/CartID"
 
 import apiInstance from "../../utils/axios"
 

@@ -3,12 +3,25 @@ import apiInstance from "../../utils/axios"
 import { Link } from "react-router-dom"
 import UserData from "../plugin/UserData"
 import CartId from "../plugin/CartID"
+import useGetAddress from "../plugin/UserCountry"
+import Swal from "sweetalert2"
+
+const Toast = Swal.mixin({
+  toast: true,
+  position: "top",
+  showConfirmButton: false,
+  timer: 1500,
+  timerProgressBar: true,
+})
 
 function Cart() {
   const [cart, setCart] = useState([])
+  const [cartTotals, setCartTotals] = useState([])
+  const [productQtys, setProductQtys] = useState("")
 
   const userData = UserData()
   const cart_id = CartId()
+  const currentAddress = useGetAddress()
 
   const fetchCartData = (cartId, userId) => {
     const url = userId
@@ -19,11 +32,80 @@ function Cart() {
     })
   }
 
-  if (cart_id !== null || cart_id !== undefined) {
+  const fetchCartTotals = (cartId, userId) => {
+    const url = userId
+      ? `cart-details/${cartId}/${userId}/`
+      : `cart-details/${cartId}`
+    apiInstance.get(url).then((res) => {
+      setCartTotals(res.data)
+    })
+  }
+
+  // Fetch Cart list and Cart totals
+  useEffect(() => {
+    if (cart_id !== null || cart_id !== undefined) {
+      if (userData !== undefined) {
+        fetchCartData(cart_id, userData?.user_id)
+        fetchCartTotals(cart_id, userData?.user_id)
+      } else {
+        fetchCartData(cart_id, null)
+        fetchCartTotals(cart_id, null)
+      }
+    }
+  }, [])
+
+  // Fetch CartItem Qtys
+  useEffect(() => {
+    const initialQtys = {}
+    cart.forEach((c) => {
+      initialQtys[c.product?.id] = c.qty
+    })
+
+    setProductQtys(initialQtys)
+  }, [cart])
+
+  const handleQtyChange = (event, product_id) => {
+    const qty = event.target.value
+    console.log(qty)
+
+    setProductQtys((prev) => ({
+      ...prev,
+      [product_id]: qty,
+    }))
+  }
+
+  const updateCart = async (
+    product_id,
+    price,
+    shipping_amount,
+    color,
+    size
+  ) => {
+    const qtyValue = productQtys[product_id]
+
+    const formdata = new FormData()
+    formdata.append("product_id", product_id),
+      formdata.append("user_id", userData?.user_id),
+      formdata.append("qty", qtyValue),
+      formdata.append("price", price),
+      formdata.append("shipping_amount", shipping_amount),
+      formdata.append("country", currentAddress.country),
+      formdata.append("size", size),
+      formdata.append("color", color),
+      formdata.append("cart_id", cart_id)
+
+    const response = await apiInstance.post("cart/", formdata)
+    console.log(response.data)
+    Toast.fire({
+      icon: "success",
+      title: response.data.message,
+    })
     if (userData !== undefined) {
       fetchCartData(cart_id, userData?.user_id)
+      fetchCartTotals(cart_id, userData?.user_id)
     } else {
       fetchCartData(cart_id, null)
+      fetchCartTotals(cart_id, null)
     }
   }
 
@@ -40,15 +122,16 @@ function Cart() {
                   <div className="col-lg-8 mb-4 mb-md-0">
                     {/* Section: Product list */}
                     <section className="mb-5">
-                      {cart?.map((c, index) => {
-                        ;<div className="row border-bottom mb-4">
+                      {cart.map((c, index) => (
+                        <div className="row border-bottom mb-4" key={index}>
                           <div className="col-md-2 mb-4 mb-md-0">
                             <div
                               className="bg-image ripple rounded-5 mb-4 overflow-hidden d-block"
                               data-ripple-color="light"
                             >
-                              <Link to={""}>
+                              <Link to={`/detail/${c?.product?.slug}`}>
                                 <img
+                                  src={c?.product?.image}
                                   className="w-100"
                                   alt=""
                                   style={{
@@ -72,62 +155,82 @@ function Cart() {
                             </div>
                           </div>
                           <div className="col-md-8 mb-4 mb-md-0">
-                            <Link className="fw-bold text-dark mb-4">
-                              Product Name
+                            <Link
+                              to={`/detail/${c.product.slug}`}
+                              className="fw-bold text-dark mb-4"
+                            >
+                              {c?.product?.title.slice(0, 20)}...
                             </Link>
-
-                            <p className="mb-0">
-                              <span className="text-muted me-2">Size:</span>
-                              <span>Size</span>
-                            </p>
-
-                            <p className="mb-0">
-                              <span className="text-muted me-2">Color:</span>
-                              <span>color</span>
-                            </p>
-
+                            {c.size != "No Size" && (
+                              <p className="mb-0">
+                                <span className="text-muted me-2">Size:</span>
+                                <span>{c.size}</span>
+                              </p>
+                            )}
+                            {c.color != "No Color" && (
+                              <p className="mb-0">
+                                <span className="text-muted me-2">Color:</span>
+                                <span>{c.color}</span>
+                              </p>
+                            )}
                             <p className="mb-0">
                               <span className="text-muted me-2">Price:</span>
-                              <span>$10</span>
+                              <span>${c.product.price}</span>
                             </p>
-                            <p className="mb-0">
-                              <span className="text-muted me-2">
-                                Stock Qty:
-                              </span>
-                              <span>qty</span>
-                            </p>
+
                             <p className="mb-0">
                               <span className="text-muted me-2">Vendor:</span>
-                              <span>vendor name</span>
+                              <span>{c.product.vendor.name}</span>
                             </p>
                             <p className="mt-3">
-                              <button className="btn btn-danger ">
+                              <a href="" className="text-danger pe-3 ">
                                 <small>
                                   <i className="fas fa-trash me-2" />
                                   Remove
                                 </small>
-                              </button>
+                              </a>
                             </p>
                           </div>
                           <div className="col-md-2 mb-4 mb-md-0">
-                            <div className="d-flex justify-content-center align-items-center">
-                              <div className="form-outline">
-                                <input
-                                  type="number"
-                                  className="form-control"
-                                  min={1}
-                                />
+                            <div className="col-md-2 mb-4 mb-md-0">
+                              <div className="d-flex justify-content-center align-items-center">
+                                <div className="form-outline">
+                                  <input
+                                    style={{ width: " 100px" }}
+                                    type="number"
+                                    id={`qtyInput-${c.product.id}`}
+                                    className="form-control"
+                                    onChange={(e) =>
+                                      handleQtyChange(e, c.product.id)
+                                    }
+                                    value={productQtys[c.product?.id]}
+                                    min={1}
+                                  />
+                                </div>
+                                <button
+                                  className="ms-2 btn btn-primary"
+                                  onClick={() =>
+                                    updateCart(
+                                      c.product.id,
+                                      c.product.price,
+                                      c.product.shipping_amount,
+                                      c.color,
+                                      c.size
+                                    )
+                                  }
+                                >
+                                  <i className="fas fa-rotate-right"></i>
+                                </button>
                               </div>
-                              <button className="ms-2 btn btn-primary">
-                                <i className="fas fa-rotate-right"></i>
-                              </button>
+                              <h5 className="mb-2 mt-3 text-center">
+                                <span className="align-middle">
+                                  ${c.sub_total}
+                                </span>
+                              </h5>
                             </div>
-                            <h5 className="mb-2 mt-3 text-center">
-                              <span className="align-middle">$10</span>
-                            </h5>
                           </div>
                         </div>
-                      })}
+                      ))}
 
                       <>
                         <h5>Your Cart Is Empty</h5>
@@ -273,25 +376,25 @@ function Cart() {
                     <section className="shadow-4 p-4 rounded-5 mb-4">
                       <h5 className="mb-3">Cart Summary</h5>
                       <div className="d-flex justify-content-between mb-3">
-                        <span>Subtotal </span>
-                        <span>$10</span>
+                        <span>Sub total </span>
+                        <span>${cartTotals.sub_total}</span>
                       </div>
                       <div className="d-flex justify-content-between">
                         <span>Shipping </span>
-                        <span>$10</span>
+                        <span>${cartTotals.shipping}</span>
                       </div>
                       <div className="d-flex justify-content-between">
                         <span>Tax </span>
-                        <span>$10</span>
+                        <span>${cartTotals.tax}</span>
                       </div>
                       <div className="d-flex justify-content-between">
                         <span>Servive Fee </span>
-                        <span>$10</span>
+                        <span>${cartTotals.service_fee}</span>
                       </div>
                       <hr className="my-4" />
                       <div className="d-flex justify-content-between fw-bold mb-5">
                         <span>Total </span>
-                        <span>$10</span>
+                        <span>${cartTotals.total}</span>
                       </div>
 
                       <button className="btn btn-primary btn-rounded w-100">

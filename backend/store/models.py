@@ -32,6 +32,18 @@ class Category(models.Model):
         verbose_name_plural = "Category"
         ordering = ['-title']
 
+class ProductVariation(models.Model):
+
+    STATUS = (
+        ("draft", "Draft"),
+        ("disabled", "Disabled"),
+        ("in_review", "In Review"),
+        ("published", "Published"),
+    )
+    
+
+    
+
 class Product(models.Model):
 
     STATUS = (

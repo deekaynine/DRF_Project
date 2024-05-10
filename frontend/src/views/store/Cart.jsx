@@ -18,6 +18,7 @@ function Cart() {
   const [cart, setCart] = useState([])
   const [cartTotals, setCartTotals] = useState([])
   const [productQtys, setProductQtys] = useState("")
+  const [contactInfo, setContactInfo] = useState({})
 
   const userData = UserData()
   const cart_id = CartId()
@@ -109,6 +110,36 @@ function Cart() {
     }
   }
 
+  const handleDeleteCartItem = async (itemId) => {
+    const url = userData?.user_id
+      ? `cart-delete/${cart_id}/${itemId}/${userData?.user_id}/`
+      : `cart-delete/${cart_id}/${itemId}/`
+
+    try {
+      await apiInstance.delete(url)
+      if (userData !== undefined) {
+        fetchCartData(cart_id, userData?.user_id)
+        fetchCartTotals(cart_id, userData?.user_id)
+      } else {
+        fetchCartData(cart_id, null)
+        fetchCartTotals(cart_id, null)
+      }
+      Toast.fire({
+        icon: "success",
+        title: "Item removed From Cart",
+      })
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const handleContactInfo = (event) => {
+    console.log(event.target.name)
+    const { name, value } = event.target
+    setContactInfo((prev) => ({ ...prev, [name]: value }))
+    console.log(contactInfo)
+  }
+
   return (
     <div>
       <main className="mt-5">
@@ -183,7 +214,13 @@ function Cart() {
                               <span>{c.product.vendor.name}</span>
                             </p>
                             <p className="mt-3">
-                              <a href="" className="text-danger pe-3 ">
+                              <a
+                                href=""
+                                className="text-danger pe-3 "
+                                onClick={() => {
+                                  handleDeleteCartItem(c.id)
+                                }}
+                              >
                                 <small>
                                   <i className="fas fa-trash me-2" />
                                   Remove
@@ -256,6 +293,9 @@ function Cart() {
                               id=""
                               name="fullName"
                               className="form-control"
+                              onChange={(e) => {
+                                handleContactInfo(e)
+                              }}
                             />
                           </div>
                         </div>
@@ -275,6 +315,9 @@ function Cart() {
                               id="form6Example1"
                               className="form-control"
                               name="email"
+                              onChange={(e) => {
+                                handleContactInfo(e)
+                              }}
                             />
                           </div>
                         </div>
@@ -291,6 +334,9 @@ function Cart() {
                               id="form6Example1"
                               className="form-control"
                               name="mobile"
+                              onChange={(e) => {
+                                handleContactInfo(e)
+                              }}
                             />
                           </div>
                         </div>
@@ -313,6 +359,9 @@ function Cart() {
                               id="form6Example1"
                               className="form-control"
                               name="address"
+                              onChange={(e) => {
+                                handleContactInfo(e)
+                              }}
                             />
                           </div>
                         </div>
@@ -330,6 +379,9 @@ function Cart() {
                               id="form6Example1"
                               className="form-control"
                               name="city"
+                              onChange={(e) => {
+                                handleContactInfo(e)
+                              }}
                             />
                           </div>
                         </div>
@@ -348,6 +400,9 @@ function Cart() {
                               id="form6Example1"
                               className="form-control"
                               name="state"
+                              onChange={(e) => {
+                                handleContactInfo(e)
+                              }}
                             />
                           </div>
                         </div>
@@ -365,6 +420,9 @@ function Cart() {
                               id="form6Example1"
                               className="form-control"
                               name="country"
+                              onChange={(e) => {
+                                handleContactInfo(e)
+                              }}
                             />
                           </div>
                         </div>

@@ -3,7 +3,7 @@ from django.shortcuts import render
 from store.models import Category, Product, Gallery, Color, Specification, Cart, CartOrder, CartOrderItem,ProductFaq, Wishlist, Notification, Coupon, Size, Review, Tax
 from users.models import User
 
-from store.serializers import ProductSerializer, CategorySerializer, CartSerializer, CartOrderSerializer, CartOrderItemSerializer
+from store.serializers import ProductSerializer, CategorySerializer, CartSerializer, CartOrderSerializer, CartOrderItemSerializer, CouponSerializer
 
 from rest_framework import generics, status
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -283,8 +283,56 @@ class CreateOrderView(generics.CreateAPIView):
 class CheckoutView(generics.RetrieveAPIView):
     serializer_class = CartOrderSerializer
     lookup_field = 'order_oid'
+    permission_classes=[AllowAny]
 
     def get_object(self):
         order_oid = self.kwargs['order_oid']
         order = CartOrder.objects.get(oid=order_oid)
         return order
+    
+class CouponApiView(generics.CreateAPIView):
+    serializer_class= CouponSerializer
+    queryset = Coupon.objects.all()
+    permission_classes=[AllowAny]
+
+    def create(self, request):
+        payload = request.data
+
+        order_oid = payload['order_oid']
+        coupon_code = payload['coupon_code']
+
+        order= CartOrder.objects.get(oid=order_oid)
+        coupon = Coupon.objects.get(code=coupon_code)
+
+        if coupon:
+            order_items = CartOrderItem.objects.filter(order=order, vendor=coupon.vendor)
+            if order_items:
+                for item in order_items:
+                    if not coupon in item.coupon.all():
+                        discount = item.total * coupon.discount/100
+
+                        item.total -= discount
+                        item.sub_total -= discount
+                        item.coupon.add(coupon)
+                        item.saved += discount
+
+                        order.total -= discount
+                        order.sub_total -= discount
+                        order.saved += discount
+
+                        item.save()
+                        order.save() 
+
+                        return Response({"message": "Coupon Activated"}, status=status.HTTP_200_OK)
+                    else:
+                        return Response({"message": "Coupon Already Activated"}, status=status.HTTP_200_OK)
+            else:
+                return Response({"message": "Coupon Not Applicable to Current Items"}, status=status.HTTP_200_OK)
+       
+        else:
+            return Response({"message": "Invalid Coupon Code"}, status=status.HTTP_200_OK)
+
+
+
+
+

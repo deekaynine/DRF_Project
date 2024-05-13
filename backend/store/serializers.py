@@ -116,7 +116,7 @@ class CartOrderItemSerializer(serializers.ModelSerializer):
 
 class CartOrderSerializer(serializers.ModelSerializer):
 
-    orderitem = CartOrderItemSerializer(many=True, read_only=True)
+    orderItem = CartOrderItemSerializer(many=True, read_only=True)
 
     class Meta:
         model = CartOrder

@@ -22,4 +22,7 @@ urlpatterns = [
     path('cart-details/<str:cart_id>/', store_views.CartDetailView.as_view()),
     path('cart-delete/<str:cart_id>/<int:item_id>/<int:user_id>/',store_views.CartItemDeleteView.as_view()),
     path('cart-delete/<str:cart_id>/<int:item_id>/',store_views.CartItemDeleteView.as_view()),
+    path('create-order/',store_views.CreateOrderView.as_view()),
+    path('checkout/<order_oid>/',store_views.CheckoutView.as_view()),
 ]
+

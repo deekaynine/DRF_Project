@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react"
 import apiInstance from "../../utils/axios"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import UserData from "../plugin/UserData"
 import CartId from "../plugin/CartID"
 import useGetAddress from "../plugin/UserCountry"
@@ -20,6 +20,7 @@ function Cart() {
   const [productQtys, setProductQtys] = useState("")
   const [contactInfo, setContactInfo] = useState({})
 
+  const navigate = useNavigate()
   const userData = UserData()
   const cart_id = CartId()
   const currentAddress = useGetAddress()
@@ -138,6 +139,50 @@ function Cart() {
     const { name, value } = event.target
     setContactInfo((prev) => ({ ...prev, [name]: value }))
     console.log(contactInfo)
+  }
+
+  const createCartOrder = async () => {
+    if (
+      !contactInfo.fullName ||
+      !contactInfo.email ||
+      !contactInfo.mobile ||
+      !contactInfo.address ||
+      !contactInfo.city ||
+      !contactInfo.state ||
+      !contactInfo.country
+    ) {
+      // If any required field is missing, show an error message or take appropriate action
+      Swal.fire({
+        icon: "warning",
+        title: "Missing Fields!",
+        text: "All fields are required before checkout",
+      })
+      return
+    }
+
+    try {
+      const formData = new FormData()
+      formData.append("full_name", contactInfo.fullName)
+      formData.append("email", contactInfo.email)
+      formData.append("mobile", contactInfo.mobile)
+      formData.append("address", contactInfo.address)
+      formData.append("city", contactInfo.city)
+      formData.append("state", contactInfo.state)
+      formData.append("country", contactInfo.country)
+      formData.append("cart_id", cart_id)
+      formData.append("user_id", userData ? userData.user_id : 0)
+
+      const response = await apiInstance.post("create-order/", formData)
+      Swal.fire({
+        icon: "success",
+        title: "Order successfully placed",
+      })
+      console.log(response.data.order_oid)
+
+      navigate(`/checkout/${response.data.order_oid}`)
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   return (
@@ -435,43 +480,32 @@ function Cart() {
                       <h5 className="mb-3">Cart Summary</h5>
                       <div className="d-flex justify-content-between mb-3">
                         <span>Sub total </span>
-                        <span>${cartTotals.sub_total}</span>
+                        <span>${cartTotals.sub_total?.toFixed(2)}</span>
                       </div>
                       <div className="d-flex justify-content-between">
                         <span>Shipping </span>
-                        <span>${cartTotals.shipping}</span>
+                        <span>${cartTotals.shipping?.toFixed(2)}</span>
                       </div>
                       <div className="d-flex justify-content-between">
                         <span>Tax </span>
-                        <span>${cartTotals.tax}</span>
+                        <span>${cartTotals.tax?.toFixed(2)}</span>
                       </div>
                       <div className="d-flex justify-content-between">
                         <span>Servive Fee </span>
-                        <span>${cartTotals.service_fee}</span>
+                        <span>${cartTotals.service_fee?.toFixed(2)}</span>
                       </div>
                       <hr className="my-4" />
                       <div className="d-flex justify-content-between fw-bold mb-5">
                         <span>Total </span>
-                        <span>${cartTotals.total}</span>
+                        <span>${cartTotals.total?.toFixed(2)}</span>
                       </div>
 
-                      <button className="btn btn-primary btn-rounded w-100">
+                      <button
+                        className="btn btn-primary btn-rounded w-100"
+                        onClick={createCartOrder}
+                      >
                         Proceed to checkout
                       </button>
-                    </section>
-                    {/* Coupon */}
-                    <section className="shadow-4 card p-4 rounded-5 mb-4">
-                      <h5 className="mb-3">Apply Promo Code</h5>
-                      <div className="d-flex justify-content-between mb-3">
-                        <input
-                          type="text"
-                          className="form-control rounded me-1"
-                          placeholder="Promo Code"
-                        />
-                        <button className="btn btn-success btn-rounded overflow-visible">
-                          Apply
-                        </button>
-                      </div>
                     </section>
                   </div>
                 </div>

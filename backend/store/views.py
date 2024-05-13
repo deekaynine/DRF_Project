@@ -72,7 +72,7 @@ class CartApiView(generics.ListCreateAPIView):
             cart.price = price 
             cart.sub_total = Decimal(price) * int(qty)
             cart.shipping_amount = Decimal(shipping_amount) * int(qty)
-            cart.tax_fee = int(qty) * Decimal(tax_rate)
+            cart.tax_fee = Decimal(cart.sub_total) * Decimal(tax_rate)
             cart.color = color
             cart.size = size
             cart.country = country
@@ -94,7 +94,7 @@ class CartApiView(generics.ListCreateAPIView):
             cart.price = price 
             cart.sub_total = Decimal(price) * int(qty)
             cart.shipping_amount = Decimal(shipping_amount) * int(qty)
-            cart.tax_fee = cart.sub_total * Decimal(tax_rate)
+            cart.tax_fee = Decimal(cart.sub_total) * Decimal(tax_rate)
             cart.color = color
             cart.size = size
             cart.country = country
@@ -230,7 +230,7 @@ class CreateOrderView(generics.CreateAPIView):
             # tax_fee=total_tax,
             # service_fee=total_service_fee,
             buyer=user,
-            payment_status="processing",
+            # payment_status="processing",
             full_name=full_name,
             email=email,
             mobile=mobile,
@@ -240,31 +240,31 @@ class CreateOrderView(generics.CreateAPIView):
             country=country
         )
 
-        for c in cart_items:
+        for item in cart_items:
             CartOrderItem.objects.create(
                 order=order,
-                product=c.product,
-                qty=c.qty,
-                color=c.color,
-                size=c.size,
-                price=c.price,
-                sub_total=c.sub_total,
-                shipping_amount=c.shipping_amount,
-                tax_fee=c.tax_fee,
-                service_fee=c.service_fee,
-                total=c.total,
-                initial_total=c.total,
-                vendor=c.product.vendor
+                product=item.product,
+                qty=item.qty,
+                color=item.color,
+                size=item.size,
+                price=item.price,
+                sub_total=item.sub_total,
+                shipping_amount=item.shipping_amount,
+                tax_fee=item.tax_fee,
+                service_fee=item.service_fee,
+                total=item.total,
+                initial_total=item.total,
+                vendor=item.product.vendor
             )
 
-            total_shipping += Decimal(c.shipping_amount)
-            total_tax += Decimal(c.tax_fee)
-            total_service_fee += Decimal(c.service_fee)
-            total_sub_total += Decimal(c.sub_total)
-            total_initial_total += Decimal(c.total)
-            total_total += Decimal(c.total)
+            total_shipping += Decimal(item.shipping_amount)
+            total_tax += Decimal(item.tax_fee)
+            total_service_fee += Decimal(item.service_fee)
+            total_sub_total += Decimal(item.sub_total)
+            total_initial_total += Decimal(item.total)
+            total_total += Decimal(item.total)
 
-            order.vendor.add(c.product.vendor)
+            order.vendor.add(item.product.vendor)
 
                 
 
@@ -279,3 +279,12 @@ class CreateOrderView(generics.CreateAPIView):
             order.save()
 
         return Response( {"message": "Order Created Successfully", 'order_oid':order.oid}, status=status.HTTP_201_CREATED)
+
+class CheckoutView(generics.RetrieveAPIView):
+    serializer_class = CartOrderSerializer
+    lookup_field = 'order_oid'
+
+    def get_object(self):
+        order_oid = self.kwargs['order_oid']
+        order = CartOrder.objects.get(oid=order_oid)
+        return order

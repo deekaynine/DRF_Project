@@ -302,7 +302,7 @@ class CouponApiView(generics.CreateAPIView):
         coupon_code = payload['coupon_code']
 
         order= CartOrder.objects.get(oid=order_oid)
-        coupon = Coupon.objects.get(code=coupon_code)
+        coupon = Coupon.objects.filter(code=coupon_code).first()
 
         if coupon:
             order_items = CartOrderItem.objects.filter(order=order, vendor=coupon.vendor)
@@ -323,14 +323,14 @@ class CouponApiView(generics.CreateAPIView):
                         item.save()
                         order.save() 
 
-                        return Response({"message": "Coupon Activated"}, status=status.HTTP_200_OK)
+                        return Response({"message": "Coupon Activated", "icon":"success"}, status=status.HTTP_200_OK)
                     else:
-                        return Response({"message": "Coupon Already Activated"}, status=status.HTTP_200_OK)
+                        return Response({"message": "Coupon Already Activated", "icon":"warning"}, status=status.HTTP_200_OK)
             else:
-                return Response({"message": "Coupon Not Applicable to Current Items"}, status=status.HTTP_200_OK)
+                return Response({"message": "Coupon Not Applicable to Current Items", "icon":"error"}, status=status.HTTP_200_OK)
        
         else:
-            return Response({"message": "Invalid Coupon Code"}, status=status.HTTP_200_OK)
+            return Response({"message": "Invalid Coupon Code", "icon":"error"}, status=status.HTTP_200_OK)
 
 
 

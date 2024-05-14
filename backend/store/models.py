@@ -235,7 +235,7 @@ class CartOrderItem(models.Model):
     date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return self.cart_item_id
+        return self.oid
     
 class ProductFaq(models.Model):
     pid = ShortUUIDField(unique=True, length=10, max_length=20, alphabet="abcdefghijklmnopqrstuvxyz")

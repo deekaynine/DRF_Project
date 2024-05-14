@@ -1,5 +1,5 @@
 from django.contrib import admin
-from store.models import Product, Category, Gallery, Specification, Size , Color, Cart, CartOrder, CartOrderItem, Tax, Review
+from store.models import Product, Category, Gallery, Specification, Size , Color, Cart, CartOrder, CartOrderItem, Tax, Review, Coupon
 from users.models import User
 
 # Inlines creates tabs in admin panel
@@ -34,6 +34,7 @@ admin.site.register(Product, ProductAdmin)
 admin.site.register(Cart)
 admin.site.register(CartOrder)
 admin.site.register(CartOrderItem)
+admin.site.register(Coupon)
 admin.site.register(Review, ReviewAdmin)
 admin.site.register(Tax)
 

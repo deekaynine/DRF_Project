@@ -1,18 +1,43 @@
 import React, { useState, useEffect } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import apiInstance from "../../utils/axios"
+import Swal from "sweetalert2"
 
 function Checkout() {
   const navigate = useNavigate()
   const params = useParams()
   const [order, setOrder] = useState([])
+  const [couponCode, setCouponCode] = useState("")
+
+  const fetchOrderData = () => {
+    apiInstance.get(`checkout/${params.order_oid}/`).then((res) => {
+      console.log(res.data)
+      setOrder(res.data)
+    })
+  }
 
   useEffect(() => {
-    apiInstance.get(`checkout/${params.order_oid}/`).then((res) => {
-      setOrder(res.data)
-      console.log(res.data)
-    })
+    fetchOrderData()
   }, [])
+
+  const handleCoupon = async () => {
+    console.log(couponCode)
+    console.log(order.oid)
+    const formdata = new FormData()
+    formdata.append("order_oid", order.oid)
+    formdata.append("coupon_code", couponCode)
+    try {
+      const response = await apiInstance.post("coupon/", formdata)
+      fetchOrderData()
+      console.log(response.data.message)
+      Swal.fire({
+        icon: response.data.icon,
+        title: response.data.message,
+      })
+    } catch (error) {
+      console.log(error)
+    }
+  }
   return (
     <div>
       <main>
@@ -177,39 +202,57 @@ function Checkout() {
                     <h5 className="mb-3">Cart Summary</h5>
                     <div className="d-flex justify-content-between mb-3">
                       <span>Subtotal </span>
-                      <span>${order.sub_total}</span>
+                      <span>+${order.sub_total}</span>
                     </div>
                     <div className="d-flex justify-content-between">
                       <span>Shipping </span>
-                      <span>${order.shipping_amount}</span>
+                      <span>+${order.shipping_amount}</span>
                     </div>
                     <div className="d-flex justify-content-between">
                       <span>Tax </span>
-                      <span>${order.tax_fee}</span>
+                      <span>+${order.tax_fee}</span>
                     </div>
                     <div className="d-flex justify-content-between">
                       <span>Servive Fee </span>
-                      <span>${order.service_fee}</span>
+                      <span>+${order.service_fee}</span>
                     </div>
+                    {order.saved !== "0.00" && (
+                      <div className="d-flex justify-content-between">
+                        <span>Discount</span>
+                        <span>-${order.saved}</span>
+                      </div>
+                    )}
+
                     <hr className="my-4" />
                     <div className="d-flex justify-content-between fw-bold mb-5">
                       <span>Total </span>
                       <span>${order.total}</span>
                     </div>
 
-                    <section className="shadow-4 card p-4 rounded-5 mb-4">
-                      <h5 className="mb-3">Apply Promo Code</h5>
-                      <div className="d-flex justify-content-between mb-3">
-                        <input
-                          type="text"
-                          className="form-control rounded me-1"
-                          placeholder="Promo Code"
-                        />
-                        <button className="btn btn-success btn-rounded overflow-visible">
-                          Apply
-                        </button>
-                      </div>
-                    </section>
+                    {order.saved == "0.00" ? (
+                      <section className="shadow-4 card p-4 rounded-5 mb-4">
+                        <h5 className="mb-3">Apply Promo Code</h5>
+                        <div className="d-flex justify-content-between mb-3">
+                          <input
+                            type="text"
+                            className="form-control rounded me-1"
+                            placeholder="Promo Code"
+                            value={couponCode}
+                            onChange={(e) => {
+                              setCouponCode(e.target.value)
+                            }}
+                          />
+                          <button
+                            className="btn btn-success btn-rounded overflow-visible"
+                            onClick={handleCoupon}
+                          >
+                            Apply
+                          </button>
+                        </div>
+                      </section>
+                    ) : (
+                      <div>Coupon applied</div>
+                    )}
 
                     <form
                       action={`http://127.0.0.1:8000/stripe-checkout/ORDER_ID/`}

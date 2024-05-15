@@ -11,8 +11,8 @@ urlpatterns = [
     path('user/register/', user_views.RegisterView.as_view()),
     path('user/password-reset/<email>/', user_views.PasswordResetView.as_view()),
     path('user/password-change/', user_views.PasswordChangeView.as_view()),
+    
     # Store Endpoints
-
     path('category/', store_views.CategoryListAPIView.as_view() ),
     path('products/', store_views.ProductListAPIView.as_view()),
     path('product/<slug>/', store_views.ProductDetailAPIView.as_view()),
@@ -25,6 +25,9 @@ urlpatterns = [
     path('create-order/',store_views.CreateOrderView.as_view()),
     path('checkout/<order_oid>/',store_views.CheckoutView.as_view()),
     path('coupon/',store_views.CouponApiView.as_view()),
+
+    # payment endpoints
+    path('stripe-checkout/<order_oid>/',store_views.StripeCheckoutView.as_view()),
 
 ]
 

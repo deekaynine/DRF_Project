@@ -7,6 +7,7 @@ function Checkout() {
   const navigate = useNavigate()
   const params = useParams()
   const [order, setOrder] = useState([])
+  const [paymentLoading, setPaymentLoading] = useState(false)
   const [couponCode, setCouponCode] = useState("")
 
   const fetchOrderData = () => {
@@ -37,6 +38,11 @@ function Checkout() {
     } catch (error) {
       console.log(error)
     }
+  }
+
+  const payWithStripe = (e) => {
+    setPaymentLoading(true)
+    e.target.form.submit()
   }
   return (
     <div>
@@ -253,19 +259,38 @@ function Checkout() {
                     ) : (
                       <div>Coupon applied</div>
                     )}
-
-                    <form
-                      action={`http://127.0.0.1:8000/stripe-checkout/ORDER_ID/`}
-                      method="POST"
-                    >
-                      <button
-                        type="submit"
-                        className="btn btn-primary btn-rounded w-100 mt-2"
-                        style={{ backgroundColor: "#635BFF" }}
+                    {paymentLoading == true && (
+                      <form
+                        action={`http://127.0.0.1:8000/api/stripe-checkout/${order?.oid}/`}
+                        method="POST"
                       >
-                        Pay Now (Stripe)
-                      </button>
-                    </form>
+                        <button
+                          type="submit"
+                          className="btn btn-primary btn-rounded w-100 mt-2"
+                          style={{ backgroundColor: "#635BFF" }}
+                          onClick={payWithStripe}
+                          disabled
+                        >
+                          Processing <i className="fas fa-spinner fa-spin"></i>
+                        </button>
+                      </form>
+                    )}
+                    {paymentLoading == false && (
+                      <form
+                        action={`http://127.0.0.1:8000/api/stripe-checkout/${order?.oid}/`}
+                        method="POST"
+                      >
+                        <button
+                          type="submit"
+                          className="btn btn-primary btn-rounded w-100 mt-2"
+                          style={{ backgroundColor: "#635BFF" }}
+                          onClick={payWithStripe}
+                        >
+                          Pay Now (Stripe)
+                          <i className="fas fa-credit-card "></i>
+                        </button>
+                      </form>
+                    )}
 
                     {/* <PayPalScriptProvider options={initialOptions}>
                       <PayPalButtons

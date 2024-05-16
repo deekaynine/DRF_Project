@@ -393,7 +393,7 @@ class PaymentSuccessView(generics.CreateAPIView):
             session= stripe.checkout.Session.retrieve(session_id)
 
             if session.payment_status == 'paid':
-                if order.payment_status == "processing":
+                if order.payment_status == "pending":
                     order.payment_status == "paid"
                     order.save()
 
@@ -412,3 +412,5 @@ class PaymentSuccessView(generics.CreateAPIView):
                 return Response({"message":"Your Invoice is cancelled"})
             else:
                 return Response({"message":"An Error has Occured, Please Try Again..."})
+        else:
+            session = None

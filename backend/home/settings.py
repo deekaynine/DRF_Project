@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 from pathlib import Path
 from datetime import timedelta
 from environs import Env
+import os
 
 env = Env()
 env.read_env()
@@ -58,6 +59,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt.token_blacklist',
     'drf_yasg',
     'corsheaders',
+    'anymail',
 ]
 
 MIDDLEWARE = [
@@ -76,7 +78,7 @@ ROOT_URLCONF = 'home.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR,"templates")],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -210,3 +212,14 @@ AUTH_USER_MODEL = "users.User"
 
 STRIPE_SECRET_KEY= env("STRIPE_SECRET_KEY")
 STRIPE_PUBLIC_KEY = env("STRIPE_PUBLIC_KEY")
+
+MAILGUN_API_KEY=env("MAILGUN_API_KEY")
+MAILGUN_SENDER_DOMAIN=env("MAILGUN_SENDER_DOMAIN")
+
+ANYMAIL= {
+    "MAILGUN_API_KEY": MAILGUN_API_KEY,
+    "MAILGUN_SENDER_DOMAIN": MAILGUN_SENDER_DOMAIN
+}
+
+FROM_EMAIL = 'matthewtse123@gmail.com'
+EMAIL_BACKEND = 'anymail.backends.mailgun.EmailBackend'

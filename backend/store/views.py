@@ -1,5 +1,7 @@
 from django.shortcuts import render, redirect
 from django.conf import settings
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
 
 from store.models import Category, Product, Gallery, Color, Specification, Cart, CartOrder, CartOrderItem,ProductFaq, Wishlist, Notification, Coupon, Size, Review, Tax
 from users.models import User
@@ -13,6 +15,15 @@ from decimal import Decimal
 import stripe
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
+
+def send_notification(user=None, vendor=None, order=None, order_item=None):
+    Notification.objects.create(
+        user=user,
+        vendor=vendor,
+        order=order,
+        order_item=order_item,
+    )
+
 
 # Create your views here.
 
@@ -397,11 +408,50 @@ class PaymentSuccessView(generics.CreateAPIView):
                     order.payment_status == "paid"
                     order.save()
 
-                    # Send Notificatons
+                    # Send Notificatons To Buyer
+                    if order.buyer !=None:
+                        send_notification(user=order.buyer,order=order)
 
                     # Send Email To Buyer
+                    buyer_data = {
+                        'order' : order,
+                        'order_items': order_items,
+                    }
+                    subject =  "Order Placed Succuessfully"
+                    text_body = render_to_string("email/customer_order_confirmation.txt", buyer_data)
+                    html_body = render_to_string("email/customer_order_confirmation.html", buyer_data)
 
-                    # Send Email to Vendor
+                    msg = EmailMultiAlternatives(
+                        subject=subject,
+                        from_email=settings.FROM_EMAIL,
+                        to=[order.email],
+                        body=text_body
+                    )
+                    msg.attach_alternative(html_body, "text/html")
+                    msg.send()
+
+                    # Send Notificatons To Vendors
+                    for item in order_items:
+                        send_notification(vendor=item.vendor, order=order, order_item=item)
+                    
+                        # Send Email To Vendor
+                        vendor_data = {
+                            'order' : order,
+                            'order_items': order_items,
+                            'vendor' : item.vendor
+                        }
+                        subject =  "You've Made a Sale!"
+                        text_body = render_to_string("email/vendor_sale.txt", vendor_data)
+                        html_body = render_to_string("email/vendor_sale.html", vendor_data)
+
+                        msg = EmailMultiAlternatives(
+                            subject=subject,
+                            from_email=settings.FROM_EMAIL,
+                            to=[order.email],
+                            body=text_body
+                        )
+                        msg.attach_alternative(html_body, "text/html")
+                        msg.send()
 
                     return Response ({"message":"Payment Successful"})
                 else:

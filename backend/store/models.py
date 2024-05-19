@@ -278,7 +278,7 @@ class Review(models.Model):
     def get_rating(self):
         return self.rating
     
-    def profile(self):
+    def user_profile(self):
         return Profile.objects.get(user=self.user)
     
 # Signal handler to update the product rating when a review is saved

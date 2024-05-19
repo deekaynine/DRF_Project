@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from store.models import Category, Product, Gallery, Color, Specification, Cart, CartOrder, CartOrderItem,ProductFaq, Wishlist, Notification, Coupon, Size, Review
+from store.models import Category, Product, Gallery, Color, Specification, Cart, CartOrder, CartOrderItem,ProductFaq, Wishlist, Notification, Coupon, Size, Review, Profile
 from vendor.models import Vendor
 class CategorySerializer(serializers.ModelSerializer):
     
@@ -161,12 +161,18 @@ class VendorSerializer(serializers.ModelSerializer):
         else:
             self.Meta.depth = 3
 
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profile
+        fields="__all__"
+
 class ReviewSerializer(serializers.ModelSerializer):
-    
+    user_profile = ProfileSerializer()
+    user_rating = serializers.SerializerMethodField(read_only=True)
     class Meta:
         model = Review
-        fields = "__all__"
-    
+        fields = ["id","review","user_rating","user","user_profile","date"] 
+
     def __init__(self, *args, **kwargs):
         super(ReviewSerializer,self).__init__(*args, **kwargs)
         request = self.context.get("request")
@@ -174,6 +180,9 @@ class ReviewSerializer(serializers.ModelSerializer):
             self.Meta.depth = 0
         else:
             self.Meta.depth = 3
+            
+    def get_user_rating(self,obj):
+        return obj.get_rating()
 
 class WishlistSerializer(serializers.ModelSerializer):
     

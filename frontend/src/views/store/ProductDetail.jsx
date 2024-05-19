@@ -12,6 +12,7 @@ function ProductDetail() {
   const [specifications, setSpecifications] = useState([])
   const [color, setColor] = useState([])
   const [size, setSize] = useState([])
+  const [reviews, setReviews] = useState([])
 
   const [colorValue, setColorValue] = useState("Not selected")
   const [sizeValue, setSizeValue] = useState("Not selected")
@@ -24,14 +25,21 @@ function ProductDetail() {
 
   useEffect(() => {
     apiInstance.get(`product/${params.slug}/`).then((res) => {
-      console.log(res.data)
       setProduct(res.data)
       setGallery(res.data.gallery)
       setSpecifications(res.data.specification)
       setColor(res.data.color)
       setSize(res.data.size)
+      fetchReviews(res.data.id)
     })
   }, [])
+
+  const fetchReviews = async (product_id) => {
+    await apiInstance.get(`reviews/${product_id}/`).then((res) => {
+      setReviews(res.data)
+      console.log(res.data)
+    })
+  }
 
   const handleColor = (event) => {
     const colorNameInput = event.target
@@ -473,48 +481,29 @@ function ProductDetail() {
                   {/* Column 2: Display existing reviews */}
                   <div className="col-md-6">
                     <h2>Existing Reviews</h2>
-                    <div className="card mb-3">
-                      <div className="row g-0">
-                        <div className="col-md-3">
-                          <img
-                            src="https://www.gravatar.com/avatar/2c7d99fe281ecd3bcd65ab915bac6dd5?s=250"
-                            alt="User Image"
-                            className="img-fluid"
-                          />
-                        </div>
-                        <div className="col-md-9">
-                          <div className="card-body">
-                            <h5 className="card-title">User 1</h5>
-                            <p className="card-text">August 10, 2023</p>
-                            <p className="card-text">
-                              This is a great product! I'm really satisfied with
-                              it.
-                            </p>
+                    {reviews?.map((review, index) => (
+                      <div className="card mb-3" key={index}>
+                        <div className="row g-0">
+                          <div className="col-md-3">
+                            <img
+                              src={review.user_profile?.image}
+                              alt="User Image"
+                              className="img-fluid"
+                            />
+                          </div>
+                          <div className="col-md-9">
+                            <div className="card-body">
+                              <h5 className="card-title">
+                                {review.user.full_name}
+                              </h5>
+                              <p className="card-text">August 10, 2023</p>
+                              <p className="card-text">{review.review}</p>
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                    <div className="card mb-3">
-                      <div className="row g-0">
-                        <div className="col-md-3">
-                          <img
-                            src="https://www.gravatar.com/avatar/2c7d99fe281ecd3bcd65ab915bac6dd5?s=250"
-                            alt="User Image"
-                            className="img-fluid"
-                          />
-                        </div>
-                        <div className="col-md-9">
-                          <div className="card-body">
-                            <h5 className="card-title">User 2</h5>
-                            <p className="card-text">August 15, 2023</p>
-                            <p className="card-text">
-                              The quality of this product exceeded my
-                              expectations!
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                    ))}
+
                     {/* More reviews can be added here */}
                   </div>
                 </div>

@@ -6,7 +6,7 @@ from django.template.loader import render_to_string
 from store.models import Category, Product, Gallery, Color, Specification, Cart, CartOrder, CartOrderItem,ProductFaq, Wishlist, Notification, Coupon, Size, Review, Tax
 from users.models import User
 
-from store.serializers import ProductSerializer, CategorySerializer, CartSerializer, CartOrderSerializer, CartOrderItemSerializer, CouponSerializer
+from store.serializers import ProductSerializer, CategorySerializer, CartSerializer, CartOrderSerializer, CartOrderItemSerializer, CouponSerializer, ReviewSerializer
 
 from rest_framework import generics, status
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -408,18 +408,18 @@ class PaymentSuccessView(generics.CreateAPIView):
                     order.payment_status == "paid"
                     order.save()
 
-                    # Send Notificatons To Buyer
+                    # Send Notificatons To Customer
                     if order.buyer !=None:
                         send_notification(user=order.buyer,order=order)
 
-                    # Send Email To Buyer
-                    buyer_data = {
+                    # Send Email To Customer
+                    customer_data = {
                         'order' : order,
                         'order_items': order_items,
                     }
                     subject =  "Order Placed Succuessfully"
-                    text_body = render_to_string("email/customer_order_confirmation.txt", buyer_data)
-                    html_body = render_to_string("email/customer_order_confirmation.html", buyer_data)
+                    text_body = render_to_string("email/customer_order_confirmation.txt", customer_data)
+                    html_body = render_to_string("email/customer_order_confirmation.html", customer_data)
 
                     msg = EmailMultiAlternatives(
                         subject=subject,
@@ -464,3 +464,20 @@ class PaymentSuccessView(generics.CreateAPIView):
                 return Response({"message":"An Error has Occured, Please Try Again..."})
         else:
             session = None
+
+class ReviewListAPIView(generics.ListCreateAPIView):
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
+    permission_classes=[AllowAny,]
+
+    def get_queryset(self, *args, **kwargs):
+        product_id = self.kwargs['product_id']
+
+        product = Product.objects.get(id=product_id)
+        reviews = Review.objects.filter(product=product)
+
+        return reviews
+    
+
+
+        

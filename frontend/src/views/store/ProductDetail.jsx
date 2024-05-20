@@ -4,6 +4,8 @@ import useGetAddress from "../plugin/UserCountry"
 import useGetUserData from "../plugin/UserData"
 import CartID from "../plugin/CartID"
 
+import moment from "moment"
+
 import apiInstance from "../../utils/axios"
 
 function ProductDetail() {
@@ -13,6 +15,7 @@ function ProductDetail() {
   const [color, setColor] = useState([])
   const [size, setSize] = useState([])
   const [reviews, setReviews] = useState([])
+  const [reviewForm, setReviewForm] = useState({ review: "", user_rating: 0 })
 
   const [colorValue, setColorValue] = useState("Not selected")
   const [sizeValue, setSizeValue] = useState("Not selected")
@@ -35,10 +38,14 @@ function ProductDetail() {
   }, [])
 
   const fetchReviews = async (product_id) => {
-    await apiInstance.get(`reviews/${product_id}/`).then((res) => {
-      setReviews(res.data)
-      console.log(res.data)
-    })
+    try {
+      await apiInstance.get(`reviews/${product_id}/`).then((res) => {
+        setReviews(res.data)
+        console.log(res.data)
+      })
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   const handleColor = (event) => {
@@ -62,7 +69,7 @@ function ProductDetail() {
   const handleAddToCart = async () => {
     try {
       const formdata = new FormData()
-      formdata.append("product_id", product.id),
+      formdata.append("product_id", product?.id),
         formdata.append("user_id", userData?.user_id),
         formdata.append("qty", qtyValue),
         formdata.append("price", product.price),
@@ -74,6 +81,33 @@ function ProductDetail() {
 
       const response = await apiInstance.post(`cart/`, formdata)
       console.log(response.data)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const handleReviewForm = (e) => {
+    setReviewForm((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }))
+  }
+
+  const submitReviewForm = async (e) => {
+    e.preventDefault()
+    const formData = new FormData()
+    formData.append("user_id", userData?.user_id)
+    formData.append("product_id", product?.id)
+    formData.append("user_rating", reviewForm.user_rating)
+    formData.append("review", reviewForm.review)
+
+    try {
+      await apiInstance
+        .post(`reviews/${product?.id}/`, formData)
+        .then((res) => {
+          console.log(res.data)
+          fetchReviews(product?.id)
+        })
     } catch (error) {
       console.log(error)
     }
@@ -446,38 +480,55 @@ function ProductDetail() {
               <div className="container mt-5">
                 <div className="row">
                   {/* Column 1: Form to create a new review */}
-                  <div className="col-md-6">
-                    <h2>Create a New Review</h2>
-                    <form>
-                      <div className="mb-3">
-                        <label htmlFor="username" className="form-label">
-                          Rating
-                        </label>
-                        <select name="" className="form-select" id="">
-                          <option value="1">1 Star</option>
-                          <option value="1">2 Star</option>
-                          <option value="1">3 Star</option>
-                          <option value="1">4 Star</option>
-                          <option value="1">5 Star</option>
-                        </select>
-                      </div>
-                      <div className="mb-3">
-                        <label htmlFor="reviewText" className="form-label">
-                          Review
-                        </label>
-                        <textarea
-                          className="form-control"
-                          id="reviewText"
-                          rows={4}
-                          placeholder="Write your review"
-                          defaultValue={""}
-                        />
-                      </div>
-                      <button type="submit" className="btn btn-primary">
-                        Submit Review
-                      </button>
-                    </form>
-                  </div>
+                  {userData !== undefined ? (
+                    <div className="col-md-6">
+                      <h2>Create a New Review</h2>
+                      <form onSubmit={submitReviewForm}>
+                        <div className="mb-3">
+                          <label htmlFor="username" className="form-label">
+                            Rating
+                          </label>
+                          <select
+                            name="user_rating"
+                            className="form-select"
+                            id=""
+                            onChange={handleReviewForm}
+                          >
+                            <option value="1">1 Star</option>
+                            <option value="2">2 Star</option>
+                            <option value="3">3 Star</option>
+                            <option value="4">4 Star</option>
+                            <option value="5">5 Star</option>
+                          </select>
+                        </div>
+                        <div className="mb-3">
+                          <label htmlFor="reviewText" className="form-label">
+                            Review
+                          </label>
+                          <textarea
+                            className="form-control"
+                            id="reviewText"
+                            rows={4}
+                            placeholder="Write your review"
+                            name="review"
+                            value={reviewForm.review}
+                            onChange={handleReviewForm}
+                          />
+                        </div>
+                        <button type="submit" className="btn btn-primary">
+                          Submit Review
+                        </button>
+                      </form>
+                    </div>
+                  ) : (
+                    <>
+                      <div>You must be logged in to create a review</div>
+                      <br />
+                      <br />
+                      <br />
+                    </>
+                  )}
+
                   {/* Column 2: Display existing reviews */}
                   <div className="col-md-6">
                     <h2>Existing Reviews</h2>
@@ -496,8 +547,46 @@ function ProductDetail() {
                               <h5 className="card-title">
                                 {review.user.full_name}
                               </h5>
-                              <p className="card-text">August 10, 2023</p>
-                              <p className="card-text">{review.review}</p>
+                              <p className="card-text">
+                                {moment(review.date).format("MMM d, YYYY")}
+                              </p>
+                              <p className="card-text">
+                                {review.review}
+                                <br />
+                                {review.user_rating === 1 && (
+                                  <i className="fas fa-star" />
+                                )}
+                                {review.user_rating === 2 && (
+                                  <>
+                                    <i className="fas fa-star" />
+                                    <i className="fas fa-star" />
+                                  </>
+                                )}
+                                {review.user_rating === 3 && (
+                                  <>
+                                    <i className="fas fa-star" />
+                                    <i className="fas fa-star" />
+                                    <i className="fas fa-star" />
+                                  </>
+                                )}
+                                {review.user_rating === 4 && (
+                                  <>
+                                    <i className="fas fa-star" />
+                                    <i className="fas fa-star" />
+                                    <i className="fas fa-star" />
+                                    <i className="fas fa-star" />
+                                  </>
+                                )}
+                                {review.user_rating === 5 && (
+                                  <>
+                                    <i className="fas fa-star" />
+                                    <i className="fas fa-star" />
+                                    <i className="fas fa-star" />
+                                    <i className="fas fa-star" />
+                                    <i className="fas fa-star" />
+                                  </>
+                                )}
+                              </p>
                             </div>
                           </div>
                         </div>

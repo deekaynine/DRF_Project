@@ -480,10 +480,11 @@ class ReviewListAPIView(generics.ListCreateAPIView):
     
     def create(self, request, *args, **kwargs):
         payload = request.data
+        print(payload)
 
         user_id = payload['user_id'] 
         product_id = payload['product_id']
-        rating = payload['rating']
+        rating = payload['user_rating']
         review = payload['review']
 
         user = User.objects.get(id=user_id)

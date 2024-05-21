@@ -10,7 +10,7 @@ import ForgotPassword from "./views/auth/ForgotPassword"
 import CreatePassword from "./views/auth/CreatePassword"
 import StoreHeader from "./views/base/StoreHeader"
 import StoreFooter from "./views/base/StoreFooter"
-
+import Search from "./views/store/Search"
 import Products from "./views/store/Products"
 import ProductDetail from "./views/store/ProductDetail"
 import Cart from "./views/store/Cart"
@@ -39,6 +39,7 @@ function App() {
           path="/payment-success/:order_oid"
           element={<PaymentSuccess />}
         />
+        <Route path="/search/" element={<Search />}></Route>
       </Routes>
       <StoreFooter />
     </BrowserRouter>

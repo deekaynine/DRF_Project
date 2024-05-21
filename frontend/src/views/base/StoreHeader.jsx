@@ -23,7 +23,7 @@ function StoreHeader() {
   }
 
   const handleSearchSubmit = () => {
-    // navigate(`/search?query=${search}`)
+    navigate(`/search?query=${search}`)
     console.log(search)
   }
 

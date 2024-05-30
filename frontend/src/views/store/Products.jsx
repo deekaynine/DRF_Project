@@ -1,30 +1,78 @@
 import React, { useState, useEffect } from "react"
+import { useSearchParams } from "react-router-dom"
 import { Link } from "react-router-dom"
 import apiInstance from "../../utils/axios"
+
+const PAGE_SIZE = 6
 
 function Products() {
   const [products, setProducts] = useState([])
   const [category, setCategory] = useState([])
+  const [productsCount, setProductsCount] = useState(0)
+  const [pageCount, setPageCount] = useState(0)
+  const [currentPage, setCurrentPage] = useState(0)
+  const [searchParams, setSearchParams] = useSearchParams()
+  console.log(searchParams.get("page"))
 
   useEffect(() => {
-    apiInstance.get(`products/`).then((res) => {
-      setProducts(res.data)
-      console.log(res.data)
-    })
-  }, [])
+    if (searchParams.get("page")) {
+      apiInstance
+        .get(`products/?page=${searchParams.get("page")}`)
+        .then((res) => {
+          setProducts(res.data.results)
+          console.log(res.data.results)
+          setCurrentPage(searchParams.get("page"))
+        })
+    } else {
+      apiInstance.get(`products/`).then((res) => {
+        setProducts(res.data.results)
+        console.log(res.data.results)
+        if (res.data.count !== 0) {
+          setProductsCount(res.data.count)
+          setPageCount(Math.ceil(res.data.count / PAGE_SIZE))
+          setCurrentPage(1)
+        }
+      })
+    }
+  }, [searchParams.get("page")])
 
   useEffect(() => {
     apiInstance.get(`category/`).then((res) => {
-      setCategory(res.data)
-      console.log(res.data)
+      setCategory(res.data.results)
+      console.log(res.data.results)
     })
   }, [])
+
+  let pageCountHolder = []
+
+  for (let i = 1; i <= pageCount; i++) {
+    pageCountHolder.push(i)
+  }
 
   return (
     <>
       <main className="mt-5">
         <div className="container">
           <section className="text-center">
+            {/* Categories */}
+            <div className="row">
+              {category?.map((c, index) => (
+                <div className="col-lg-2" key={index}>
+                  <img
+                    src={c.image}
+                    style={{
+                      width: "100px",
+                      height: "100px",
+                      borderRadius: "50%",
+                      objectFit: "cover",
+                    }}
+                    alt=""
+                  />
+                  <h6>{c.title}</h6>
+                </div>
+              ))}
+            </div>
+            <br />
             <div className="row">
               {products?.map((p, index) => (
                 <div className="col-lg-4 col-md-6 mb-4" key={index}>
@@ -58,41 +106,35 @@ function Products() {
                           <strike>${p.og_price}</strike>
                         </p>
                       </div>
-                      <button
-                        type="button"
-                        className="btn btn-primary me-1 mb-1"
-                      >
-                        Add to cart
-                      </button>
-                      <button
-                        type="button"
-                        className="btn btn-danger px-3 me-1 mb-1"
-                      >
-                        <i className="fas fa-times" />
-                      </button>
                     </div>
                   </div>
                 </div>
               ))}
             </div>
-            {/* Categories */}
-            <div className="row">
-              {category?.map((c, index) => (
-                <div className="col-lg-2" key={index}>
-                  <img
-                    src={c.image}
-                    style={{
-                      width: "100px",
-                      height: "100px",
-                      borderRadius: "50%",
-                      objectFit: "cover",
-                    }}
-                    alt=""
-                  />
-                  <h6>{c.title}</h6>
-                </div>
+            {/* Pagination */}
+            <div className="flex w-full border  ">
+              {pageCountHolder.map((page, index) => (
+                <Link
+                  key={index}
+                  style={{
+                    textDecoration: "none",
+                    color: "black",
+                    marginInline: "3px",
+                    "font-size": "12px",
+                    content: "border-box",
+                  }}
+                  to={`http://localhost:5173/?page=${page}`}
+                >
+                  <button
+                    onClick={() => setSearchParams({ page: `${page}` })}
+                    className="border px-2 py-2 "
+                  >
+                    {page}
+                  </button>
+                </Link>
               ))}
             </div>
+            <br />
           </section>
           {/*Section: Wishlist*/}
         </div>

@@ -32,12 +32,27 @@ class ColorSerializer(serializers.ModelSerializer):
         model = Color
         fields = "__all__"
 
+class VendorSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Vendor
+        fields = "__all__"
+    
+    def __init__(self, *args, **kwargs):
+        super(VendorSerializer,self).__init__(*args, **kwargs)
+        request = self.context.get("request")
+        if request and request.method == "POST":
+            self.Meta.depth = 0
+        else:
+            self.Meta.depth = 3
+
 
 class ProductSerializer(serializers.ModelSerializer):
     gallery= GallerySerializer(many=True, read_only=True)
     color= ColorSerializer(many=True, read_only=True)
     specification= SpecificationSerializer(many=True, read_only=True)
     size= SizeSerializer(many=True, read_only=True)
+    
 
     class Meta:
         model = Product
@@ -147,19 +162,7 @@ class ProductFaqSerializer(serializers.ModelSerializer):
         else:
             self.Meta.depth = 3
 
-class VendorSerializer(serializers.ModelSerializer):
-    
-    class Meta:
-        model = Vendor
-        fields = "__all__"
-    
-    def __init__(self, *args, **kwargs):
-        super(VendorSerializer,self).__init__(*args, **kwargs)
-        request = self.context.get("request")
-        if request and request.method == "POST":
-            self.Meta.depth = 0
-        else:
-            self.Meta.depth = 3
+
 
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:

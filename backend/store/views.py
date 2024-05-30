@@ -7,6 +7,7 @@ from store.models import Category, Product, Gallery, Color, Specification, Cart,
 from users.models import User
 
 from store.serializers import ProductSerializer, CategorySerializer, CartSerializer, CartOrderSerializer, CartOrderItemSerializer, CouponSerializer, ReviewSerializer
+from store.pagination import ProductPagination, ReviewPagination
 
 from rest_framework import generics, status
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -36,6 +37,7 @@ class ProductListAPIView(generics.ListAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     permission_classes = [AllowAny,]
+    pagination_class = ProductPagination
 
 class ProductDetailAPIView(generics.RetrieveAPIView):
     queryset = Product.objects.all()
@@ -469,6 +471,7 @@ class ReviewListAPIView(generics.ListCreateAPIView):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
     permission_classes=[AllowAny,]
+    pagination_class=ReviewPagination
 
     def get_queryset(self, *args, **kwargs):
         product_id = self.kwargs['product_id']

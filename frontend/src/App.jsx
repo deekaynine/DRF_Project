@@ -1,5 +1,6 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Routes, Route, BrowserRouter } from "react-router-dom"
+import { CartProvider } from "./contexts/CartContext.jsx"
 import "./App.css"
 
 import Login from "./views/auth/Login"
@@ -19,30 +20,33 @@ import PaymentSuccess from "./views/store/PaymentSuccess"
 
 function App() {
   return (
-    <BrowserRouter>
-      <StoreHeader />
-      <Routes>
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/logout" element={<Logout />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/create-new-password" element={<CreatePassword />} />
-        <Route path="/dashboard" element={<Dashboard />} />
+    <CartProvider>
+      <BrowserRouter>
+        <StoreHeader />
+        <Routes>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/logout" element={<Logout />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/create-new-password" element={<CreatePassword />} />
+          <Route path="/dashboard" element={<Dashboard />} />
 
-        {/* Store Components */}
-        <Route path="/" element={<Products />} />
-        <Route path="/detail/:slug/" element={<ProductDetail />} />
-        <Route path="/cart/" element={<Cart />} />
-        <Route path="/checkout/:order_oid" element={<Checkout />} />
-        <Route
-          path="/payment-success/:order_oid"
-          element={<PaymentSuccess />}
-        />
-        <Route path="/search/" element={<Search />}></Route>
-      </Routes>
-      <StoreFooter />
-    </BrowserRouter>
+          {/* Store Components */}
+          <Route path="/" element={<Products />} />
+          <Route path="/?page=:page>" element={<Products />} />
+          <Route path="/detail/:slug/" element={<ProductDetail />} />
+          <Route path="/cart/" element={<Cart />} />
+          <Route path="/checkout/:order_oid" element={<Checkout />} />
+          <Route
+            path="/payment-success/:order_oid"
+            element={<PaymentSuccess />}
+          />
+          <Route path="/search/" element={<Search />}></Route>
+        </Routes>
+        <StoreFooter />
+      </BrowserRouter>
+    </CartProvider>
   )
 }
 

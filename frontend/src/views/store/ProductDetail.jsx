@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom"
 import useGetAddress from "../plugin/UserCountry"
 import useGetUserData from "../plugin/UserData"
 import CartID from "../plugin/CartID"
-
+import { useCartContext } from "../../contexts/CartContext"
 import moment from "moment"
 
 import apiInstance from "../../utils/axios"
@@ -20,6 +20,8 @@ function ProductDetail() {
   const [colorValue, setColorValue] = useState("Not selected")
   const [sizeValue, setSizeValue] = useState("Not selected")
   const [qtyValue, setQtyValue] = useState(1)
+
+  const [cartCount, setCartCount] = useCartContext()
 
   const currentAddress = useGetAddress()
   const userData = useGetUserData()
@@ -40,8 +42,8 @@ function ProductDetail() {
   const fetchReviews = async (product_id) => {
     try {
       await apiInstance.get(`reviews/${product_id}/`).then((res) => {
-        setReviews(res.data)
-        console.log(res.data)
+        setReviews(res.data.results)
+        console.log(res.data.results)
       })
     } catch (error) {
       console.log(error)
@@ -81,6 +83,12 @@ function ProductDetail() {
 
       const response = await apiInstance.post(`cart/`, formdata)
       console.log(response.data)
+      const url = userData
+        ? `cart-list/${cart_id}/${userData?.user_id}/`
+        : `cart-list/${cart_id}/`
+      apiInstance.get(url).then((res) => {
+        setCartCount(res.data.length)
+      })
     } catch (error) {
       console.log(error)
     }
@@ -531,7 +539,7 @@ function ProductDetail() {
 
                   {/* Column 2: Display existing reviews */}
                   <div className="col-md-6">
-                    <h2>Existing Reviews</h2>
+                    <h2>Reviews</h2>
                     {reviews?.map((review, index) => (
                       <div className="card mb-3" key={index}>
                         <div className="row g-0">

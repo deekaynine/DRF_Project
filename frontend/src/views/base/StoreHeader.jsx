@@ -4,17 +4,20 @@ import { Link } from "react-router-dom"
 // import { CartContext } from "../plugin/Context"
 import apiInstance from "../../utils/axios"
 import { useNavigate } from "react-router-dom"
+import { useCartContext } from "../../contexts/CartContext"
 
 function StoreHeader() {
   // const cartCount = useContext(CartContext)
   const [search, setSearch] = useState("")
-
+  const [cartCount, setCartCount] = useCartContext()
   const [isLoggedIn, user] = useAuthStore((state) => [
     state.isLoggedIn,
     state.user,
   ])
 
   console.log("user().vendor_id", user().vendor_id)
+  console.log("logged in?", isLoggedIn())
+  console.log("user", user())
 
   const navigate = useNavigate()
 
@@ -215,7 +218,7 @@ function StoreHeader() {
             )}
             <Link className="btn btn-danger" to="/cart/">
               <i className="fas fa-shopping-cart"></i>{" "}
-              <span id="cart-total-items">0</span>
+              <span id="cart-total-items">{cartCount}</span>
             </Link>
           </div>
         </div>

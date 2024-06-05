@@ -9,6 +9,7 @@ function useGetUserData() {
   if (access_token && refresh_token) {
     const token = refresh_token
     const decoded = jwtDecode(token)
+
     return decoded
   } else {
     console.log("User token does not exist")

@@ -6,14 +6,9 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from users.models import User, Profile
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
-    # gets request data underneath the hood and generates tokens
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
-
-        token['full_name'] = user.full_name
-        token['email'] = user.email
-        token['username'] = user.username
         try:
             token['vendor_id'] = user.vendor_id
         except:

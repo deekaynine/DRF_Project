@@ -5,6 +5,7 @@ import UserData from "../plugin/UserData"
 import CartId from "../plugin/CartID"
 import useGetAddress from "../plugin/UserCountry"
 import Swal from "sweetalert2"
+import { useCartContext } from "../../contexts/CartContext"
 
 const Toast = Swal.mixin({
   toast: true,
@@ -19,6 +20,7 @@ function Cart() {
   const [cartTotals, setCartTotals] = useState([])
   const [productQtys, setProductQtys] = useState("")
   const [contactInfo, setContactInfo] = useState({})
+  const { setCartCount } = useCartContext()
 
   const navigate = useNavigate()
   const userData = UserData()
@@ -30,7 +32,8 @@ function Cart() {
       ? `cart-list/${cartId}/${userId}/`
       : `cart-list/${cartId}`
     apiInstance.get(url).then((res) => {
-      setCart(res.data)
+      setCart(res.data.results)
+      setCartCount(res.data.results.length)
     })
   }
 

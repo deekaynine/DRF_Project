@@ -104,6 +104,7 @@ export const setAuthUser = (access_token, refresh_token) => {
   })
 
   const user = jwt_decode(access_token) ?? null
+  console.log("fetching user: ", user)
 
   if (user) {
     useAuthStore.getState().setUser(user)

@@ -21,7 +21,7 @@ function ProductDetail() {
   const [sizeValue, setSizeValue] = useState("Not selected")
   const [qtyValue, setQtyValue] = useState(1)
 
-  const [cartCount, setCartCount] = useCartContext()
+  const { setCartCount } = useCartContext()
 
   const currentAddress = useGetAddress()
   const userData = useGetUserData()
@@ -43,7 +43,6 @@ function ProductDetail() {
     try {
       await apiInstance.get(`reviews/${product_id}/`).then((res) => {
         setReviews(res.data.results)
-        console.log(res.data.results)
       })
     } catch (error) {
       console.log(error)
@@ -87,7 +86,7 @@ function ProductDetail() {
         ? `cart-list/${cart_id}/${userData?.user_id}/`
         : `cart-list/${cart_id}/`
       apiInstance.get(url).then((res) => {
-        setCartCount(res.data.length)
+        setCartCount(res.data.results.length)
       })
     } catch (error) {
       console.log(error)

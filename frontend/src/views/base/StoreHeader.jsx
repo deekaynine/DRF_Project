@@ -1,4 +1,4 @@
-import { useContext, useState, useEffect } from "react"
+import { useState, useEffect } from "react"
 import { useAuthStore } from "../../store/auth"
 import { Link } from "react-router-dom"
 // import { CartContext } from "../plugin/Context"
@@ -7,17 +7,12 @@ import { useNavigate } from "react-router-dom"
 import { useCartContext } from "../../contexts/CartContext"
 
 function StoreHeader() {
-  // const cartCount = useContext(CartContext)
   const [search, setSearch] = useState("")
-  const [cartCount, setCartCount] = useCartContext()
+  const { cartCount } = useCartContext()
   const [isLoggedIn, user] = useAuthStore((state) => [
     state.isLoggedIn,
     state.user,
   ])
-
-  console.log("user().vendor_id", user().vendor_id)
-  console.log("logged in?", isLoggedIn())
-  console.log("user", user())
 
   const navigate = useNavigate()
 

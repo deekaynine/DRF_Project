@@ -3,6 +3,8 @@ import { useSearchParams } from "react-router-dom"
 import { Link } from "react-router-dom"
 import apiInstance from "../../utils/axios"
 
+const PAGE_SIZE = 2
+
 function Products() {
   const [searchParams, setSearchParams] = useSearchParams()
   const [products, setProducts] = useState([])
@@ -10,8 +12,6 @@ function Products() {
   const [productsCount, setProductsCount] = useState(0)
   const [pageCount, setPageCount] = useState(0)
   const [currentPage, setCurrentPage] = useState(searchParams.get("page") || 1)
-  console.log(searchParams.get("page"))
-  console.log(currentPage)
 
   useEffect(() => {
     if (searchParams.get("page")) {
@@ -20,17 +20,16 @@ function Products() {
         .then((res) => {
           setProducts(res.data.results)
           setProductsCount(res.data.count)
-          setPageCount(Math.ceil(res.data.count / res.data.results?.length))
+          setPageCount(Math.ceil(res.data.count / PAGE_SIZE))
           setCurrentPage(searchParams.get("page"))
         })
     } else {
       apiInstance.get(`products/`).then((res) => {
         setProducts(res.data.results)
-        console.log(res.data)
-        console.log(res.data.results)
+
         if (res.data.count !== 0) {
           setProductsCount(res.data.count)
-          setPageCount(Math.ceil(res.data.count / res.data.results?.length))
+          setPageCount(Math.ceil(res.data.count / PAGE_SIZE))
           setCurrentPage(1)
         }
       })
@@ -40,7 +39,6 @@ function Products() {
   useEffect(() => {
     apiInstance.get(`category/`).then((res) => {
       setCategory(res.data.results)
-      console.log(res.data.results)
     })
   }, [])
 
@@ -113,6 +111,33 @@ function Products() {
               ))}
             </div>
             {/* Pagination */}
+
+            {pageCount < 5 && pageCount > 0 && (
+              <div className="flex w-full border  ">
+                {currentPage == 1 ? "" : <>left</>}
+                {pageCountHolder.map((page, index) => (
+                  <Link
+                    key={index}
+                    style={{
+                      textDecoration: "none",
+                      color: "black",
+                      marginInline: "3px",
+                      "font-size": "12px",
+                      content: "border-box",
+                    }}
+                    to={`http://localhost:5173/?page=${page}`}
+                  >
+                    <button
+                      onClick={() => console.log(currentPage)}
+                      className="border px-2 py-2 "
+                    >
+                      {page}
+                    </button>
+                  </Link>
+                ))}
+                {currentPage == 4 ? "" : <>right</>}
+              </div>
+            )}
 
             {pageCount >= 5 &&
               currentPage > 3 &&

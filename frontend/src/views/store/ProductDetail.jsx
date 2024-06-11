@@ -5,6 +5,7 @@ import useGetUserData from "../plugin/UserData"
 import CartID from "../plugin/CartID"
 import { useCartContext } from "../../contexts/CartContext"
 import moment from "moment"
+import Swal from "sweetalert2"
 
 import apiInstance from "../../utils/axios"
 
@@ -115,6 +116,26 @@ function ProductDetail() {
           console.log(res.data)
           fetchReviews(product?.id)
         })
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const addToWishlist = async (productId, userId) => {
+    try {
+      const formData = new FormData()
+      formData.append("product_id", productId)
+      formData.append("user_id", userId)
+
+      const response = await apiInstance.post(
+        `customer/wishlist/${userId}`,
+        formData
+      )
+      console.log(response.data)
+      Swal.fire({
+        icon: "success",
+        title: response.data.message,
+      })
     } catch (error) {
       console.log(error)
     }

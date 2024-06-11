@@ -1,19 +1,22 @@
 import React, { useState, useEffect } from "react"
 import Sidebar from "./Sidebar"
 import apiInstance from "../../utils/axios"
-import useGetUserData from "../plugin/UserData"
+import UserData from "../plugin/UserData"
+import { Link } from "react-router-dom"
+import Swal from "sweetalert2"
 
 function Wishlist() {
   const [wishlist, setWishlist] = useState([])
 
-  const userData = useGetUserData()
+  const axios = apiInstance
+  const userData = UserData()
 
   const fetchWishlist = async () => {
     try {
-      const response = await apiInstance.get(
+      const response = await axios.get(
         `customer/wishlist/${userData?.user_id}/`
       )
-      setWishlist(response.data.results)
+      setWishlist(response.data)
     } catch (error) {
       console.log(error)
     }
@@ -25,15 +28,26 @@ function Wishlist() {
 
   console.log(wishlist)
 
-  // const handleAddToWishlist = async (product_id) => {
-  //     try {
-  //         await addToWishlist(product_id, userData?.user_id)
-  //         fetchWishlist()
+  const addToWishlist = async (productId, userId) => {
+    try {
+      const formData = new FormData()
+      formData.append("product_id", productId)
+      formData.append("user_id", userId)
 
-  //     } catch (error) {
-  //         console.log(error);
-  //     }
-  // };
+      const response = await apiInstance.post(
+        `customer/wishlist/${userId}`,
+        formData
+      )
+      console.log(response.data)
+      Swal.fire({
+        icon: "success",
+        title: response.data.message,
+      })
+      fetchWishlist()
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   return (
     <div>
@@ -100,12 +114,17 @@ function Wishlist() {
                                     </h6>
                                   </a>
                                   <a href="" className="text-reset">
-                                    <p>{w.product?.vendor.name}</p>
+                                    <p>{w.product?.brand.title}</p>
                                   </a>
                                   <h6 className="mb-3">{w.product.price}</h6>
 
                                   <button
-                                    onClick={() => console.log("added")}
+                                    onClick={() =>
+                                      addToWishlist(
+                                        w.product.id,
+                                        userData.user_id
+                                      )
+                                    }
                                     type="button"
                                     className="btn btn-danger px-3 me-1 mb-1"
                                   >

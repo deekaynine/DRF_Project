@@ -3,10 +3,10 @@ from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 
-from store.models import Category, Product, Gallery, Color, Specification, Cart, CartOrder, CartOrderItem,ProductFaq, Wishlist, Notification, Coupon, Size, Review, Tax
+from store.models import Category, Product, Gallery, Color, Specification, CartItem, Order, OrderItem,ProductFaq, Wishlist, Notification, Coupon, Size, Review, Tax
 from users.models import User
 
-from store.serializers import ProductSerializer, CategorySerializer, CartSerializer, CartOrderSerializer, CartOrderItemSerializer, CouponSerializer, ReviewSerializer
+from store.serializers import ProductSerializer, CategorySerializer, CartItemSerializer, OrderSerializer, OrderItemSerializer, CouponSerializer, ReviewSerializer
 from store.pagination import ProductPagination, ReviewPagination
 
 from rest_framework import generics, status
@@ -50,8 +50,8 @@ class ProductDetailAPIView(generics.RetrieveAPIView):
     
 # To do: create vendor default shipping amount and product shipping amount if vendor gets product from a third party
 class CartApiView(generics.ListCreateAPIView):
-    queryset = Cart.objects.all()
-    serializer_class = CartSerializer
+    queryset = CartItem.objects.all()
+    serializer_class = CartItemSerializer
     permission_classes = [AllowAny,]
 
     def create(self, request, *args, **kwargs):
@@ -80,7 +80,7 @@ class CartApiView(generics.ListCreateAPIView):
         else:
             tax_rate = 0
 
-        cart = Cart.objects.filter(cart_id = cart_id, product=product).first()
+        cart = CartItem.objects.filter(cart_id = cart_id, product=product).first()
         
         if cart:
             cart.product = product
@@ -104,7 +104,7 @@ class CartApiView(generics.ListCreateAPIView):
             return Response({'message' : 'Cart Updated Successfully'}, status=status.HTTP_200_OK)
        
         else:
-            cart = Cart()
+            cart = CartItem()
             cart.product = product
             cart.user = user
             cart.qty = qty
@@ -127,8 +127,8 @@ class CartApiView(generics.ListCreateAPIView):
 
 # Grab all Cart Items from a specific Cart
 class CartListView(generics.ListAPIView):
-    serializer_class = CartSerializer
-    queryset = Cart.objects.all()
+    serializer_class = CartItemSerializer
+    queryset = CartItem.objects.all()
     permission_classes = [AllowAny,]
 
     def get_queryset(self,*args, **kwarg):
@@ -138,15 +138,15 @@ class CartListView(generics.ListAPIView):
 
         if user_id is not None:
             user = User.objects.get(id=user_id)
-            queryset = Cart.objects.filter(user=user, cart_id=cart_id)
+            queryset = CartItem.objects.filter(user=user, cart_id=cart_id)
         else:
-            queryset = Cart.objects.filter(cart_id=cart_id)
+            queryset = CartItem.objects.filter(cart_id=cart_id)
 
         return queryset
 
 # Grab Cart Items from a specific Cart and get total details
 class CartDetailView(generics.RetrieveAPIView):
-    serializer_class= CartSerializer
+    serializer_class= CartItemSerializer
     permission_classes = [AllowAny,]
     lookup_field = "cart_id"
 
@@ -156,9 +156,9 @@ class CartDetailView(generics.RetrieveAPIView):
 
         if user_id is not None:
             user = User.objects.get(id=user_id)
-            queryset = Cart.objects.filter(user=user, cart_id=cart_id)
+            queryset = CartItem.objects.filter(user=user, cart_id=cart_id)
         else:
-            queryset = Cart.objects.filter(cart_id=cart_id)
+            queryset = CartItem.objects.filter(cart_id=cart_id)
 
         return queryset
     
@@ -190,7 +190,7 @@ class CartDetailView(generics.RetrieveAPIView):
         return Response(data)
     
 class CartItemDeleteView(generics.DestroyAPIView):
-    serializer_class = CartSerializer
+    serializer_class = CartItemSerializer
     lookup_field = 'cart_id'
 
     def get_object(self):
@@ -200,15 +200,15 @@ class CartItemDeleteView(generics.DestroyAPIView):
 
         if user_id:
             user = User.objects.get(id=user_id)
-            cart = Cart.objects.get(id=item_id, cart_id=cart_id, user=user)
+            cart = CartItem.objects.get(id=item_id, cart_id=cart_id, user=user)
         else:
-            cart= Cart.objects.get(id=item_id, cart_id=cart_id)
+            cart= CartItem.objects.get(id=item_id, cart_id=cart_id)
 
         return cart
     
 class CreateOrderView(generics.CreateAPIView):
-    serializer_class = CartOrderSerializer
-    queryset = CartOrder.objects.all()
+    serializer_class = OrderSerializer
+    queryset = Order.objects.all()
     permission_classes = (AllowAny,)
 
     def create(self, request, *args, **kwargs):
@@ -231,7 +231,7 @@ class CreateOrderView(generics.CreateAPIView):
         else:
             user = None
 
-        cart_items = Cart.objects.filter(cart_id=cart_id)
+        cart_items = CartItem.objects.filter(cart_id=cart_id)
 
         total_shipping = Decimal(0.0)
         total_tax = Decimal(0.0)
@@ -241,7 +241,7 @@ class CreateOrderView(generics.CreateAPIView):
         total_total = Decimal(0.0)
 
 
-        order = CartOrder.objects.create(
+        order = Order.objects.create(
             # sub_total=total_sub_total,
             # shipping_amount=total_shipping,
             # tax_fee=total_tax,
@@ -258,7 +258,7 @@ class CreateOrderView(generics.CreateAPIView):
         )
 
         for item in cart_items:
-            CartOrderItem.objects.create(
+            OrderItem.objects.create(
                 order=order,
                 product=item.product,
                 qty=item.qty,
@@ -298,13 +298,13 @@ class CreateOrderView(generics.CreateAPIView):
         return Response( {"message": "Order Created Successfully", 'order_oid':order.oid}, status=status.HTTP_201_CREATED)
 
 class CheckoutView(generics.RetrieveAPIView):
-    serializer_class = CartOrderSerializer
+    serializer_class = OrderSerializer
     lookup_field = 'order_oid'
     permission_classes=[AllowAny]
 
     def get_object(self):
         order_oid = self.kwargs['order_oid']
-        order = CartOrder.objects.get(oid=order_oid)
+        order = Order.objects.get(oid=order_oid)
         return order
     
 class CouponApiView(generics.CreateAPIView):
@@ -318,11 +318,11 @@ class CouponApiView(generics.CreateAPIView):
         order_oid = payload['order_oid']
         coupon_code = payload['coupon_code']
 
-        order= CartOrder.objects.get(oid=order_oid)
+        order= Order.objects.get(oid=order_oid)
         coupon = Coupon.objects.filter(code=coupon_code).first()
 
         if coupon:
-            order_items = CartOrderItem.objects.filter(order=order, vendor=coupon.vendor)
+            order_items = OrderItem.objects.filter(order=order, vendor=coupon.vendor)
             if order_items:
                 for item in order_items:
                     if not coupon in item.coupon.all():
@@ -350,13 +350,13 @@ class CouponApiView(generics.CreateAPIView):
             return Response({"message": "Invalid Coupon Code", "icon":"error"}, status=status.HTTP_200_OK)
 
 class StripeCheckoutView(generics.CreateAPIView):
-    serializer_class = CartOrderSerializer
+    serializer_class = OrderSerializer
     permission_classes = [AllowAny,]
-    queryset = CartOrder.objects.all()
+    queryset = Order.objects.all()
 
     def create(self,*args, **kwargs):
         order_oid = self.kwargs['order_oid']
-        order = CartOrder.objects.get(oid=order_oid)
+        order = Order.objects.get(oid=order_oid)
 
         if not order:
             return Response({"message":"Order not found"}, status=status.HTTP_404_NOT_FOUND)
@@ -390,17 +390,17 @@ class StripeCheckoutView(generics.CreateAPIView):
             return Response({"error": f"Something went wrong while creating the checkout session {str(e)}"})
 
 class PaymentSuccessView(generics.CreateAPIView):
-    serializer_class = CartOrderSerializer
+    serializer_class = OrderSerializer
     permission_classes = [AllowAny,]
-    queryset = CartOrder.objects.all()
+    queryset = Order.objects.all()
 
     def create(self,request,*args,**kwargs):
         payload = request.data
         order_oid = payload['order_oid']
         session_id = payload['session_id']
 
-        order = CartOrder.objects.get(oid=order_oid)
-        order_items = CartOrderItem.objects.filter(order=order)
+        order = Order.objects.get(oid=order_oid)
+        order_items = OrderItem.objects.filter(order=order)
 
         if session_id != 'null':
             session= stripe.checkout.Session.retrieve(session_id)

@@ -32,17 +32,6 @@ class Category(models.Model):
         verbose_name_plural = "Category"
         ordering = ['-title']
 
-class ProductVariation(models.Model):
-
-    STATUS = (
-        ("draft", "Draft"),
-        ("disabled", "Disabled"),
-        ("in_review", "In Review"),
-        ("published", "Published"),
-    )
-    
-
-    
 
 class Product(models.Model):
 
@@ -137,7 +126,7 @@ class Color(models.Model):
     def __str__(self):
         return self.name
     
-class Cart(models.Model):
+class CartItem(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     qty = models.PositiveIntegerField(default=0, null=True, blank=True)
@@ -156,7 +145,7 @@ class Cart(models.Model):
     def __str__(self):
         return f'{self.cart_id} - {self.product.title}'
 
-class CartOrder(models.Model):
+class Order(models.Model):
     PAYMENT_STATUS = (
     ("paid", "Paid"),
     ("pending", "Pending"),
@@ -211,11 +200,11 @@ class CartOrder(models.Model):
         return self.oid
     
     def orderItem(self):
-        return CartOrderItem.objects.filter(order=self)
+        return OrderItem.objects.filter(order=self)
 
 
-class CartOrderItem(models.Model):
-    order = models.ForeignKey(CartOrder, on_delete=models.CASCADE, related_name="orderitem")
+class OrderItem(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="orderitem")
     vendor = models.ForeignKey(Vendor, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="order_item")
     
@@ -306,8 +295,8 @@ class Wishlist(models.Model):
 class Notification(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     vendor = models.ForeignKey(Vendor, on_delete=models.SET_NULL, null=True, blank=True)
-    order = models.ForeignKey(CartOrder, on_delete=models.SET_NULL, null=True, blank=True)
-    order_item = models.ForeignKey(CartOrderItem, on_delete=models.SET_NULL, null=True, blank=True)
+    order = models.ForeignKey(Order, on_delete=models.SET_NULL, null=True, blank=True)
+    order_item = models.ForeignKey(OrderItem, on_delete=models.SET_NULL, null=True, blank=True)
     seen = models.BooleanField(default=False)
     date = models.DateTimeField(auto_now_add=True)
     

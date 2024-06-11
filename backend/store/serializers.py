@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from store.models import Category, Product, Gallery, Color, Specification, Cart, CartOrder, CartOrderItem,ProductFaq, Wishlist, Notification, Coupon, Size, Review, Profile
+from store.models import Category, Product, Gallery, Color, Specification, CartItem, Order, OrderItem,ProductFaq, Wishlist, Notification, Coupon, Size, Review, Profile
 from vendor.models import Vendor
 class CategorySerializer(serializers.ModelSerializer):
     
@@ -91,16 +91,16 @@ class ProductSerializer(serializers.ModelSerializer):
             self.Meta.depth = 3
 
 
-class CartSerializer(serializers.ModelSerializer):
+class CartItemSerializer(serializers.ModelSerializer):
     
     product = ProductSerializer()  
 
     class Meta:
-        model = Cart
+        model = CartItem
         fields = '__all__'
     
     def __init__(self, *args, **kwargs):
-        super(CartSerializer, self).__init__(*args, **kwargs)
+        super(CartItemSerializer, self).__init__(*args, **kwargs)
         # Customize serialization depth based on the request method.
         request = self.context.get('request')
         if request and request.method == 'POST':
@@ -111,14 +111,14 @@ class CartSerializer(serializers.ModelSerializer):
             self.Meta.depth = 3
 
 
-class CartOrderItemSerializer(serializers.ModelSerializer): 
+class OrderItemSerializer(serializers.ModelSerializer): 
 
     class Meta:
-        model = CartOrderItem
+        model = OrderItem
         fields = '__all__'
     
     def __init__(self, *args, **kwargs):
-        super(CartOrderItemSerializer, self).__init__(*args, **kwargs)
+        super(OrderItemSerializer, self).__init__(*args, **kwargs)
         # Customize serialization depth based on the request method.
         request = self.context.get('request')
         if request and request.method == 'POST':
@@ -129,16 +129,16 @@ class CartOrderItemSerializer(serializers.ModelSerializer):
             self.Meta.depth = 3
 
 
-class CartOrderSerializer(serializers.ModelSerializer):
+class OrderSerializer(serializers.ModelSerializer):
 
-    orderItem = CartOrderItemSerializer(many=True, read_only=True)
+    orderItem = OrderItemSerializer(many=True, read_only=True)
 
     class Meta:
-        model = CartOrder
+        model = Order
         fields = '__all__'
 
     def __init__(self, *args, **kwargs):
-        super(CartOrderSerializer, self).__init__(*args, **kwargs)
+        super(OrderSerializer, self).__init__(*args, **kwargs)
         # Customize serialization depth based on the request method.
         request = self.context.get('request')
         if request and request.method == 'POST':

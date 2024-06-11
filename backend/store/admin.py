@@ -1,5 +1,5 @@
 from django.contrib import admin
-from store.models import Product, Category, Gallery, Specification, Size , Color, Cart, CartOrder, CartOrderItem, Tax, Review, Coupon, Notification
+from store.models import Product, Category, Gallery, Specification, Size , Color, CartItem, Order, OrderItem, Tax, Review, Coupon, Notification
 from users.models import User
 
 # Inlines creates tabs in admin panel
@@ -25,7 +25,7 @@ class ProductAdmin(admin.ModelAdmin):
     search_fields = ['title']
     inlines = [GalleryInline, SpecificationInline, SizeInline, ColorInline]
 
-class CartOrderAdmin(admin.ModelAdmin):
+class OrderAdmin(admin.ModelAdmin):
     search_fields = ['oid', 'full_name', 'email', 'mobile']
     list_editable = ['order_status', 'payment_status']
     list_filter = ['payment_status', 'order_status']
@@ -37,9 +37,9 @@ class ReviewAdmin(admin.ModelAdmin):
 
 admin.site.register(Category)
 admin.site.register(Product, ProductAdmin)
-admin.site.register(Cart)
-admin.site.register(CartOrder , CartOrderAdmin)
-admin.site.register(CartOrderItem)
+admin.site.register(CartItem)
+admin.site.register(Order , OrderAdmin)
+admin.site.register(OrderItem)
 admin.site.register(Coupon)
 admin.site.register(Review, ReviewAdmin)
 admin.site.register(Tax)

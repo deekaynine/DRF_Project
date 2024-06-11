@@ -17,33 +17,67 @@ import ProductDetail from "./views/store/ProductDetail"
 import Cart from "./views/store/Cart"
 import Checkout from "./views/store/Checkout"
 import PaymentSuccess from "./views/store/PaymentSuccess"
+import Account from "./views/customer/Account.jsx"
+import Orders from "./views/customer/Orders.jsx"
+import OrderDetails from "./views/customer/OrderDetails.jsx"
+import PrivateRoute from "./layout/PrivateRoute.jsx"
+import MainWrapper from "./layout/MainWrapper.jsx"
 
 function App() {
   return (
     <CartProvider>
       <BrowserRouter>
         <StoreHeader />
-        <Routes>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/logout" element={<Logout />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/create-new-password" element={<CreatePassword />} />
-          <Route path="/dashboard" element={<Dashboard />} />
+        <MainWrapper>
+          <Routes>
+            {/* Auth Routes */}
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/logout" element={<Logout />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/create-new-password" element={<CreatePassword />} />
+            <Route path="/dashboard" element={<Dashboard />} />
 
-          {/* Store Components */}
-          <Route path="/" element={<Products />} />
-          <Route path="/?page=:page>" element={<Products />} />
-          <Route path="/detail/:slug/" element={<ProductDetail />} />
-          <Route path="/cart/" element={<Cart />} />
-          <Route path="/checkout/:order_oid" element={<Checkout />} />
-          <Route
-            path="/payment-success/:order_oid"
-            element={<PaymentSuccess />}
-          />
-          <Route path="/search/" element={<Search />}></Route>
-        </Routes>
+            {/* Store Routes */}
+            <Route path="/" element={<Products />} />
+            <Route path="/?page=:page>" element={<Products />} />
+            <Route path="/detail/:slug/" element={<ProductDetail />} />
+            <Route path="/cart/" element={<Cart />} />
+            <Route path="/checkout/:order_oid/" element={<Checkout />} />
+            <Route
+              path="/payment-success/:order_oid/"
+              element={<PaymentSuccess />}
+            />
+            <Route path="/search/" element={<Search />}></Route>
+
+            {/* Customer Routes */}
+            <Route
+              path="/customer/account/"
+              element={
+                <PrivateRoute>
+                  <Account />
+                </PrivateRoute>
+              }
+            ></Route>
+            <Route
+              path="/customer/orders/"
+              element={
+                <PrivateRoute>
+                  <Orders />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/customer/orders/:order_oid/"
+              element={
+                <PrivateRoute>
+                  <OrderDetails />
+                </PrivateRoute>
+              }
+            />
+          </Routes>
+        </MainWrapper>
         <StoreFooter />
       </BrowserRouter>
     </CartProvider>

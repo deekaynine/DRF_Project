@@ -1,6 +1,7 @@
 from django.contrib import admin
-from store.models import Product, Category, Gallery, Specification, Size , Color, CartItem, Order, OrderItem, Tax, Review, Coupon, Notification
+from store.models import Product, Category, Wishlist, Gallery, Specification, Size , Color, CartItem, Order, OrderItem, Tax, Review, Coupon, Notification
 from users.models import User
+
 
 # Inlines creates tabs in admin panel
 # Inlines must have a foreign key to the referenced model (product)
@@ -44,4 +45,5 @@ admin.site.register(Coupon)
 admin.site.register(Review, ReviewAdmin)
 admin.site.register(Tax)
 admin.site.register(Notification)
+admin.site.register(Wishlist)
 

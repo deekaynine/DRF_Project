@@ -68,6 +68,9 @@ def create(self,request):
     wishlist = Wishlist.objects.filter(product=product, user=user)
     if wishlist:
         wishlist.delete()
-        return Response()
+        return Response({"message":"Item Removed From Wishlist"}, status=status.HTTP_200_OK)
+    else:
+        Wishlist.objects.create(product=product, user=user)
+        return Response({"message":"Item Successfully Added to Wishlist"}, status=status.HTTP_201_CREATED)
 
     

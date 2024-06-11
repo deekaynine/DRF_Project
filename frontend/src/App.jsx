@@ -20,6 +20,7 @@ import PaymentSuccess from "./views/store/PaymentSuccess"
 import Account from "./views/customer/Account.jsx"
 import Orders from "./views/customer/Orders.jsx"
 import OrderDetails from "./views/customer/OrderDetails.jsx"
+import Wishlist from "./views/customer/Wishlist.jsx"
 import PrivateRoute from "./layout/PrivateRoute.jsx"
 import MainWrapper from "./layout/MainWrapper.jsx"
 
@@ -73,6 +74,14 @@ function App() {
               element={
                 <PrivateRoute>
                   <OrderDetails />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/customer/wishlist/"
+              element={
+                <PrivateRoute>
+                  <Wishlist />
                 </PrivateRoute>
               }
             />

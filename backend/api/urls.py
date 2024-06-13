@@ -39,6 +39,8 @@ urlpatterns = [
     path('customer/orders/<user_id>/',customer_views.OrdersApiView.as_view()),
     path('customer/orders/<user_id>/<order_oid>/',customer_views.OrderDetailApiView.as_view()),
     path('customer/wishlist/<user_id>/',customer_views.WishlistAPIView.as_view()),
+    path('customer/notifications/<user_id>/',customer_views.CustomerNotificationView.as_view()),
+    path('customer/notifications/<user_id>/<notif_id>',customer_views.MarkNotificationAsSeenView.as_view()),
 
 ]
 

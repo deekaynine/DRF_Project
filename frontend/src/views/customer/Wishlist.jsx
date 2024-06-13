@@ -16,7 +16,7 @@ function Wishlist() {
       const response = await axios.get(
         `customer/wishlist/${userData?.user_id}/`
       )
-      setWishlist(response.data)
+      setWishlist(response.data.results)
     } catch (error) {
       console.log(error)
     }
@@ -35,7 +35,7 @@ function Wishlist() {
       formData.append("user_id", userId)
 
       const response = await apiInstance.post(
-        `customer/wishlist/${userId}`,
+        `customer/wishlist/${userId}/`,
         formData
       )
       console.log(response.data)
@@ -114,7 +114,7 @@ function Wishlist() {
                                     </h6>
                                   </a>
                                   <a href="" className="text-reset">
-                                    <p>{w.product?.brand.title}</p>
+                                    <p>Brand Title</p>
                                   </a>
                                   <h6 className="mb-3">{w.product.price}</h6>
 
@@ -122,7 +122,7 @@ function Wishlist() {
                                     onClick={() =>
                                       addToWishlist(
                                         w.product.id,
-                                        userData.user_id
+                                        userData?.user_id
                                       )
                                     }
                                     type="button"

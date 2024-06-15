@@ -22,8 +22,10 @@ import Orders from "./views/customer/Orders.jsx"
 import OrderDetails from "./views/customer/OrderDetails.jsx"
 import Wishlist from "./views/customer/Wishlist.jsx"
 import Notifications from "./views/customer/Notifications.jsx"
+import Invoices from "./views/customer/Invoice.jsx"
 import PrivateRoute from "./layout/PrivateRoute.jsx"
 import MainWrapper from "./layout/MainWrapper.jsx"
+import Settings from "./views/customer/Settings.jsx"
 
 function App() {
   return (
@@ -91,6 +93,22 @@ function App() {
               element={
                 <PrivateRoute>
                   <Notifications />
+                </PrivateRoute>
+              }
+            ></Route>
+            <Route
+              path="/customer/settings/"
+              element={
+                <PrivateRoute>
+                  <Settings />
+                </PrivateRoute>
+              }
+            ></Route>
+            <Route
+              path="/customer/invoices/:order_oid"
+              element={
+                <PrivateRoute>
+                  <Invoices />
                 </PrivateRoute>
               }
             ></Route>

@@ -24,6 +24,7 @@ function Notifications() {
   useEffect(() => {
     fetchNotifs()
   }, [])
+
   return (
     <div>
       <main className="mt-5" style={{ marginBottom: 200 }}>
@@ -47,6 +48,7 @@ function Notifications() {
                               href="#"
                               className="list-group-item list-group-item-action"
                               aria-current="true"
+                              key={index}
                             >
                               <div className="d-flex w-100 justify-content-between">
                                 <h5 className="mb-1">New Order!</h5>

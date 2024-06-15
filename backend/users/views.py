@@ -71,9 +71,9 @@ class PasswordChangeView(generics.CreateAPIView):
         else:
             return Response ({"message" : "An error occured"}, status = status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-class UserProfileView(generics.RetrieveAPIView):
+class UserProfileView(generics.RetrieveUpdateAPIView):
     serializer_class = ProfileSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [AllowAny,]
 
     def get_object(self):
         user_id = self.kwargs['user_id']
@@ -81,3 +81,5 @@ class UserProfileView(generics.RetrieveAPIView):
         user = User.objects.get(id=user_id)
         profile = Profile.objects.get(user=user)
         return profile
+    
+

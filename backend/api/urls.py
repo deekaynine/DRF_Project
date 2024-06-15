@@ -3,6 +3,7 @@ from django.urls import path
 from users import views as user_views
 from store import views as store_views
 from customer import views as customer_views
+from vendor import views as vendor_views
 
 from rest_framework_simplejwt.views import TokenRefreshView
 
@@ -41,6 +42,9 @@ urlpatterns = [
     path('customer/wishlist/<user_id>/',customer_views.WishlistAPIView.as_view()),
     path('customer/notifications/<user_id>/',customer_views.CustomerNotificationView.as_view()),
     path('customer/notifications/<user_id>/<notif_id>',customer_views.MarkNotificationAsSeenView.as_view()),
+
+    # Customer Endpoints
+    path('vendor/stats/<vendor_id>/',vendor_views.DashboardStatsAPIView.as_view()),
 
 ]
 

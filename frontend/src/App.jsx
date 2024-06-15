@@ -27,6 +27,8 @@ import PrivateRoute from "./layout/PrivateRoute.jsx"
 import MainWrapper from "./layout/MainWrapper.jsx"
 import Settings from "./views/customer/Settings.jsx"
 
+import Dashboard from "./views/vendor/Dashboard"
+
 function App() {
   return (
     <CartProvider>
@@ -109,6 +111,16 @@ function App() {
               element={
                 <PrivateRoute>
                   <Invoices />
+                </PrivateRoute>
+              }
+            ></Route>
+
+            {/* Vendor Routes */}
+            <Route
+              path="/vendor/dashboard/"
+              element={
+                <PrivateRoute>
+                  <Dashboard />
                 </PrivateRoute>
               }
             ></Route>

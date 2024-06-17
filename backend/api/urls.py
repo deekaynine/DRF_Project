@@ -45,6 +45,8 @@ urlpatterns = [
 
     # Customer Endpoints
     path('vendor/stats/<vendor_id>/',vendor_views.DashboardStatsAPIView.as_view()),
-
+    path('vendor-orders-chart/<vendor_id>/',vendor_views.MonthlyOrderCartAPIView),
+    path('vendor-products-chart/<vendor_id>/',vendor_views.MonthlyProductChartAPIView),
+  
 ]
 

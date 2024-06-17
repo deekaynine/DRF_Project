@@ -9,8 +9,9 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
+        print(user)
         try:
-            token['vendor_id'] = user.vendor_id
+            token['vendor_id'] = user.vendor.id
         except:
             token['vendor_id'] = 0
 

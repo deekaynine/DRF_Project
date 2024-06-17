@@ -59,3 +59,50 @@ class DashboardStatsAPIView(generics.ListAPIView):
         queryset = self.get_queryset()
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
+
+@api_view(['GET',])
+def MonthlyOrderCartAPIView(request, vendor_id):
+    vendor = Vendor.objects.get(id=vendor_id)
+    orders = Order.objects.filter(vendor=vendor, payment_status="paid")
+    orders_by_month = orders.annotate(month=ExtractMonth("date")).values("month").annotate(orders=models.Count("id")).order_by("month")
+    return Response(orders_by_month)
+
+@api_view(['GET',])
+def MonthlyProductChartAPIView(request, vendor_id):
+    vendor = Vendor.objects.get(id=vendor_id)
+    products = Product.objects.filter(vendor=vendor)
+    products_by_month = products.annotate(month=ExtractMonth("date")).values("month").annotate(products=models.Count("id")).order_by("month")
+    return Response(products_by_month)
+
+class ProductsAPIView(generics.ListAPIView):
+    serializer_class = ProductSerializer
+    permission_classes = (AllowAny,)
+
+    def get_queryset(self):
+        vendor_id = self.kwargs['vendor_id']
+        vendor = Vendor.objects.get(id=vendor_id)
+        products = Product.objects.filter(vendor=vendor)
+        return products
+
+
+class OrdersAPIView(generics.ListAPIView):
+    serializer_class = OrderSerializer
+    permission_classes = (AllowAny,)
+
+    def get_queryset(self):
+        vendor_id = self.kwargs['vendor_id']
+        vendor = Vendor.objects.get(id=vendor_id)
+        orders = Order.objects.filter(vendor=vendor, payment_status="paid")
+        return orders
+
+
+class RevenueAPIView(generics.ListAPIView):
+    serializer_class = OrderItemSerializer
+    permission_classes = (AllowAny,)
+
+    def get_queryset(self):
+        vendor_id = self.kwargs['vendor_id']
+        vendor = Vendor.objects.get(id=vendor_id)
+        revenue = OrderItem.objects.filter(vendor=vendor, order__payment_status="paid").aggregate(
+            total_revenue=models.Sum(models.F('sub_total') + models.F('shipping_amount')))['total_revenue'] or 0
+        return revenue

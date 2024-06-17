@@ -5,7 +5,7 @@ import Chart from "chart.js/auto"
 import { Pie, Line } from "react-chartjs-2"
 
 import apiInstance from "../../utils/axios"
-import UserData from "../plugin/UserData"
+import useGetUserData from "../plugin/UserData"
 import Sidebar from "./Sidebar"
 import Swal from "sweetalert2"
 
@@ -17,16 +17,16 @@ function Dashboard() {
   const [productsChartData, setProductsChartData] = useState(null)
 
   const axios = apiInstance
-  const userData = UserData()
+  const userData = useGetUserData()
   const navigate = useNavigate()
 
-  if (UserData()?.vendor_id === 0) {
+  if (useGetUserData()?.vendor_id === null) {
     window.location.href = "/vendor/register/"
   }
 
-  if (userData?.vendor_id !== 0) {
-    useEffect(() => {
-      const fetchData = async () => {
+  useEffect(() => {
+    const fetchData = async () => {
+      if (userData?.vendor_id !== 0) {
         try {
           const response = await axios.get(
             `vendor/stats/${userData?.vendor_id}/`
@@ -36,53 +36,55 @@ function Dashboard() {
           console.error("Error fetching data:", error)
         }
       }
+    }
 
-      fetchData()
-    }, [])
+    fetchData()
+  }, [])
 
-    useEffect(() => {
-      const fetchData = async () => {
-        try {
-          const response = await axios.get(
-            `vendor/products/${userData?.vendor_id}/`
-          )
-          setProducts(response.data)
-        } catch (error) {
-          console.error("Error fetching data:", error)
-        }
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(
+          `vendor/products/${userData?.vendor_id}/`
+        )
+        setProducts(response.data)
+      } catch (error) {
+        console.error("Error fetching data:", error)
       }
+    }
 
-      fetchData()
-    }, [])
+    fetchData()
+  }, [])
 
-    useEffect(() => {
-      const fetchData = async () => {
-        try {
-          const response = await axios.get(
-            `vendor/orders/${userData?.vendor_id}/`
-          )
-          setOrders(response.data)
-        } catch (error) {
-          console.error("Error fetching data:", error)
-        }
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(
+          `vendor/orders/${userData?.vendor_id}/`
+        )
+        setOrders(response.data)
+      } catch (error) {
+        console.error("Error fetching data:", error)
       }
+    }
 
-      fetchData()
-    }, [])
-  }
+    fetchData()
+  }, [])
 
   useEffect(() => {
     const fetchChartData = async () => {
       try {
         const order_response = await axios.get(
-          `vendor-orders-report-chart/${userData?.vendor_id}/`
+          `vendor-orders-chart/${userData?.vendor_id}/`
         )
         setOrderChartData(order_response.data)
+        console.log(order_response.data)
 
         const product_response = await axios.get(
-          `vendor-products-report-chart/${userData?.vendor_id}/`
+          `vendor-products-chart/${userData?.vendor_id}/`
         )
         setProductsChartData(product_response.data)
+        console.log(product_response.data)
       } catch (error) {
         console.log(error)
       }
@@ -94,7 +96,7 @@ function Dashboard() {
   const order_counts = orderChartData?.map((item) => item.orders)
 
   const product_labels = productsChartData?.map((item) => item.month)
-  const product_count = productsChartData?.map((item) => item.orders)
+  const product_count = productsChartData?.map((item) => item.products)
 
   const order_data = {
     labels: order_months,

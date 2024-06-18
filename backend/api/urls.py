@@ -47,6 +47,16 @@ urlpatterns = [
     path('vendor/stats/<vendor_id>/',vendor_views.DashboardStatsAPIView.as_view()),
     path('vendor-orders-chart/<vendor_id>/',vendor_views.MonthlyOrderCartAPIView),
     path('vendor-products-chart/<vendor_id>/',vendor_views.MonthlyProductChartAPIView),
-  
-]
+    path('vendor/products/<vendor_id>/',vendor_views.ProductsAPIView.as_view()),
+    path('vendor/orders/<vendor_id>/',vendor_views.OrdersAPIView.as_view()),
+    path('vendor/orders/<vendor_id>/<order_oid>/',vendor_views.OrderDetailAPIView.as_view()),
+    path('vendor/revenue/<vendor_id>/',vendor_views.RevenueAPIView.as_view()),
+    path('vendor/product-filter/<vendor_id>/', vendor_views.FilterProductsAPIView().as_view()),
+    path('vendor-monthly-earning/<vendor_id>/', vendor_views.MonthlyEarningTracker, name='vendor-product-filter'),
+    path('vendor-reviews/<vendor_id>/', vendor_views.ReviewsListAPIView.as_view(), name='vendor-reviews'),
+    path('vendor-reviews/<vendor_id>/<review_id>/', vendor_views.ReviewsDetailAPIView.as_view(), name='vendor-review-detail'),
+    path('vendor-coupon-list/<vendor_id>/', vendor_views.CouponListAPIView.as_view(), name='vendor-coupon-list'),
+    path('vendor-coupon-stats/<vendor_id>/', vendor_views.CouponStatsAPIView.as_view(), name='vendor-coupon-stats'),
+    path('vendor-coupon-detail/<vendor_id>/<coupon_id>/', vendor_views.CouponDetailAPIView.as_view(), name='vendor-coupon-detail'),
 
+]

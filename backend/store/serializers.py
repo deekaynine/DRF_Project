@@ -233,3 +233,12 @@ class SummarySerializer(serializers.Serializer):
     products = serializers.IntegerField()
     orders = serializers.IntegerField()
     revenue = serializers.DecimalField(max_digits=12, decimal_places=2)
+
+
+class EarningSummarySerializer(serializers.Serializer):
+    monthly_revenue = serializers.DecimalField(max_digits=10, decimal_places=2)
+    total_revenue = serializers.DecimalField(max_digits=10, decimal_places=2)
+
+class CouponSummarySerializer(serializers.Serializer):
+    total_coupon = serializers.IntegerField()
+    active = serializers.IntegerField()

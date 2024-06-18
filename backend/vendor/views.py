@@ -1,4 +1,5 @@
 # Django Packages
+import datetime
 from django.shortcuts import get_object_or_404, redirect, render
 from django.http import JsonResponse, HttpResponseNotFound, HttpResponse
 from django.views import View
@@ -26,7 +27,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 
 # Serializers
 from users.serializers import MyTokenObtainPairSerializer, ProfileSerializer, RegisterSerializer
-from store.serializers import  NotificationSerializer, SummarySerializer, OrderItemSerializer,  ProductSerializer,  CategorySerializer, OrderSerializer, GallerySerializer,  ProductFaqSerializer, ReviewSerializer,  SpecificationSerializer, CouponSerializer, ColorSerializer, SizeSerializer, WishlistSerializer, VendorSerializer
+from store.serializers import  NotificationSerializer, SummarySerializer, OrderItemSerializer, EarningSummarySerializer,  ProductSerializer,  CategorySerializer, OrderSerializer, GallerySerializer,  ProductFaqSerializer, ReviewSerializer,  SpecificationSerializer, CouponSerializer, ColorSerializer, SizeSerializer, WishlistSerializer, VendorSerializer,CouponSummarySerializer
 
 # Models
 from users.models import Profile, User
@@ -94,6 +95,19 @@ class OrdersAPIView(generics.ListAPIView):
         vendor = Vendor.objects.get(id=vendor_id)
         orders = Order.objects.filter(vendor=vendor, payment_status="paid")
         return orders
+    
+class OrderDetailAPIView(generics.RetrieveAPIView):
+    serializer_class = OrderSerializer
+    permission_classes = (AllowAny,)
+
+    def get_object(self):
+        vendor_id = self.kwargs['vendor_id']
+        order_oid = self.kwargs['order_oid']
+
+        vendor = Vendor.objects.get(id=vendor_id)
+        order = Order.objects.get(
+            vendor=vendor, payment_status="paid", oid=order_oid)
+        return order
 
 
 class RevenueAPIView(generics.ListAPIView):
@@ -106,3 +120,170 @@ class RevenueAPIView(generics.ListAPIView):
         revenue = OrderItem.objects.filter(vendor=vendor, order__payment_status="paid").aggregate(
             total_revenue=models.Sum(models.F('sub_total') + models.F('shipping_amount')))['total_revenue'] or 0
         return revenue
+    
+class FilterProductsAPIView(generics.ListAPIView):
+    serializer_class = ProductSerializer
+    permission_classes = (AllowAny,)
+
+    def get_queryset(self):
+        vendor_id = self.kwargs['vendor_id']
+        filter = self.request.GET.get('filter')
+
+        print("filter =======", filter)
+
+        vendor = Vendor.objects.get(id=vendor_id)
+        if filter == "published":
+            products = Product.objects.filter(
+                vendor=vendor, status="published")
+        elif filter == "draft":
+            products = Product.objects.filter(vendor=vendor, status="draft")
+        elif filter == "disabled":
+            products = Product.objects.filter(vendor=vendor, status="disabled")
+        elif filter == "in-review":
+            products = Product.objects.filter(
+                vendor=vendor, status="in-review")
+        elif filter == "latest":
+            products = Product.objects.filter(vendor=vendor).order_by('-id')
+        elif filter == "oldest":
+            products = Product.objects.filter(vendor=vendor).order_by('id')
+        else:
+            products = Product.objects.filter(vendor=vendor)
+        return products
+    
+class Earning(generics.ListAPIView):
+    serializer_class = EarningSummarySerializer
+
+    def get_queryset(self):
+
+        vendor_id = self.kwargs['vendor_id']
+        vendor = Vendor.objects.get(id=vendor_id)
+
+        one_month_ago = datetime.today() - datetime.timedelta(days=28)
+        monthly_revenue = OrderItem.objects.filter(vendor=vendor, order__payment_status="paid", date__gte=one_month_ago).aggregate(
+            total_revenue=models.Sum(models.F('sub_total') + models.F('shipping_amount')))['total_revenue'] or 0
+        total_revenue = OrderItem.objects.filter(vendor=vendor, order__payment_status="paid").aggregate(
+            total_revenue=models.Sum(models.F('sub_total') + models.F('shipping_amount')))['total_revenue'] or 0
+
+        return [{
+            'monthly_revenue': monthly_revenue,
+            'total_revenue': total_revenue,
+        }]
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+    
+@api_view(('GET',))
+def MonthlyEarningTracker(request, vendor_id):
+    vendor = Vendor.objects.get(id=vendor_id)
+    monthly_earning_tracker = (
+        OrderItem.objects
+        .filter(vendor=vendor, order__payment_status="paid")
+        .annotate(
+            month=ExtractMonth("date")
+        )
+        .values("month")
+        .annotate(
+            sales_count=models.Sum("qty"),
+            total_earning=models.Sum(
+                models.F('sub_total') + models.F('shipping_amount'))
+        )
+        .order_by("-month")
+    )
+    return Response(monthly_earning_tracker)
+
+class ReviewsListAPIView(generics.ListAPIView):
+    serializer_class = ReviewSerializer
+    permission_classes = (AllowAny,)
+
+    def get_queryset(self):
+        vendor_id = self.kwargs['vendor_id']
+        vendor = Vendor.objects.get(id=vendor_id)
+        reviews = Review.objects.filter(product__vendor=vendor)
+        return reviews
+    
+class ReviewsDetailAPIView(generics.RetrieveUpdateAPIView):
+    serializer_class = ReviewSerializer
+    permission_classes = (AllowAny,)
+
+    def get_object(self):
+        vendor_id = self.kwargs['vendor_id']
+        review_id = self.kwargs['review_id']
+
+        vendor = Vendor.objects.get(id=vendor_id)
+        review = Review.objects.get(product__vendor=vendor, id=review_id)
+        
+        return review
+    
+class CouponListAPIView(generics.ListCreateAPIView):
+    serializer_class = CouponSerializer
+    queryset = Coupon.objects.all()
+    permission_classes = (AllowAny, )
+
+    def get_queryset(self):
+        vendor_id = self.kwargs['vendor_id']
+        vendor = Vendor.objects.get(id=vendor_id)
+        coupon = Coupon.objects.filter(vendor=vendor)
+        return coupon
+
+    def create(self, request, *args, **kwargs):
+        payload = request.data
+
+        vendor_id = payload['vendor_id']
+        code = payload['code']
+        discount = payload['discount']
+        active = payload['active']
+
+        print("vendor_id ======", vendor_id)
+        print("code ======", code)
+        print("discount ======", discount)
+        print("active ======", active)
+
+        vendor = Vendor.objects.get(id=vendor_id)
+        Coupon.objects.create(
+            vendor=vendor,
+            code=code,
+            discount=discount,
+            active=(active.lower() == "true")
+        )
+
+        return Response({"message": "Coupon Created Successfully."}, status=status.HTTP_201_CREATED)
+
+
+class CouponDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = CouponSerializer
+    permission_classes = (AllowAny, )
+
+    def get_object(self):
+        vendor_id = self.kwargs['vendor_id']
+        coupon_id = self.kwargs['coupon_id']
+
+        vendor = Vendor.objects.get(id=vendor_id)
+
+        coupon = Coupon.objects.get(vendor=vendor, id=coupon_id)
+        return coupon
+
+
+class CouponStatsAPIView(generics.ListAPIView):
+    serializer_class = CouponSummarySerializer
+    permission_classes = [AllowAny,]
+
+    def get_queryset(self):
+
+        vendor_id = self.kwargs['vendor_id']
+        vendor = Vendor.objects.get(id=vendor_id)
+
+        total_coupons = Coupon.objects.filter(vendor=vendor).count()
+        active_coupons = Coupon.objects.filter(
+            vendor=vendor, active=True).count()
+
+        return [{
+            'total_coupons': total_coupons,
+            'active_coupons': active_coupons,
+        }]
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)

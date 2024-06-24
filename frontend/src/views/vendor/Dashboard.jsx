@@ -47,7 +47,7 @@ function Dashboard() {
         const response = await axios.get(
           `vendor/products/${userData?.vendor_id}/`
         )
-        setProducts(response.data)
+        setProducts(response.data.results)
       } catch (error) {
         console.error("Error fetching data:", error)
       }
@@ -62,7 +62,7 @@ function Dashboard() {
         const response = await axios.get(
           `vendor/orders/${userData?.vendor_id}/`
         )
-        setOrders(response.data)
+        setOrders(response.data.results)
       } catch (error) {
         console.error("Error fetching data:", error)
       }

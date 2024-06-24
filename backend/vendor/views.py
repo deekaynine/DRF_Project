@@ -27,7 +27,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 
 # Serializers
 from users.serializers import MyTokenObtainPairSerializer, ProfileSerializer, RegisterSerializer
-from store.serializers import  NotificationSerializer, SummarySerializer, OrderItemSerializer, EarningSummarySerializer,  ProductSerializer,  CategorySerializer, OrderSerializer, GallerySerializer,  ProductFaqSerializer, ReviewSerializer,  SpecificationSerializer, CouponSerializer, ColorSerializer, SizeSerializer, WishlistSerializer, VendorSerializer,CouponSummarySerializer
+from store.serializers import  NotificationSerializer, NotificationSummarySerializer,  SummarySerializer, OrderItemSerializer, EarningSummarySerializer,  ProductSerializer,  CategorySerializer, OrderSerializer, GallerySerializer,  ProductFaqSerializer, ReviewSerializer,  SpecificationSerializer, CouponSerializer, ColorSerializer, SizeSerializer, WishlistSerializer, VendorSerializer,CouponSummarySerializer
 
 # Models
 from users.models import Profile, User
@@ -150,7 +150,7 @@ class FilterProductsAPIView(generics.ListAPIView):
             products = Product.objects.filter(vendor=vendor)
         return products
     
-class Earning(generics.ListAPIView):
+class EarningAPIView(generics.ListAPIView):
     serializer_class = EarningSummarySerializer
 
     def get_queryset(self):
@@ -287,3 +287,125 @@ class CouponStatsAPIView(generics.ListAPIView):
         queryset = self.get_queryset()
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
+    
+class CouponCreateAPIView(generics.CreateAPIView):
+    serializer_class = CouponSerializer
+    queryset = Coupon.objects.all()
+    permission_classes = (AllowAny, )
+
+    def create(self, request, *args, **kwargs):
+        payload = request.data
+
+        vendor_id = payload['vendor_id']
+        code = payload['code']
+        discount = payload['discount']
+        active = payload['active']
+
+        print("vendor_id ======", vendor_id)
+        print("code ======", code)
+        print("discount ======", discount)
+        print("active ======", active)
+
+        vendor = Vendor.objects.get(id=vendor_id)
+        coupon = Coupon.objects.create(
+            vendor=vendor,
+            code=code,
+            discount=discount,
+            active=(active.lower() == "true")
+        )
+
+        return Response({"message": "Coupon Created Successfully."}, status=status.HTTP_201_CREATED)
+    
+class NotificationUnSeenListAPIView(generics.ListAPIView):
+    serializer_class = NotificationSerializer
+    queryset = Notification.objects.all()
+    permission_classes = (AllowAny, )
+
+    def get_queryset(self):
+        vendor_id = self.kwargs['vendor_id']
+        vendor = Vendor.objects.get(id=vendor_id)
+        notifications = Notification.objects.filter(vendor=vendor, seen=False).order_by('seen')
+        return notifications
+    
+class NotificationSeenListAPIView(generics.ListAPIView):
+    serializer_class = NotificationSerializer
+    queryset = Notification.objects.all()
+    permission_classes = (AllowAny, )
+
+    def get_queryset(self):
+        vendor_id = self.kwargs['vendor_id']
+        vendor = Vendor.objects.get(id=vendor_id)
+        notifications = Notification.objects.filter(vendor=vendor, seen=True).order_by('seen')
+        return notifications
+    
+class NotificationSummaryAPIView(generics.ListAPIView):
+    serializer_class = NotificationSummarySerializer
+
+    def get_queryset(self):
+        vendor_id = self.kwargs['vendor_id']
+        vendor = Vendor.objects.get(id=vendor_id)
+
+        un_read_notif = Notification.objects.filter(vendor=vendor, seen=False).count()
+        read_notif = Notification.objects.filter(vendor=vendor, seen=True).count()
+        all_notif = Notification.objects.filter(vendor=vendor).count()
+
+        return [{
+            'un_read_notif': un_read_notif,
+            'read_notif': read_notif,
+            'all_notif': all_notif,
+        }]
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    
+class NotificationMarkAsSeen(generics.RetrieveUpdateAPIView):
+    serializer_class = NotificationSerializer
+    permission_classes = (AllowAny, )
+
+    def get_object(self):
+        vendor_id = self.kwargs['vendor_id']
+        notif_id = self.kwargs['notif_id']
+        vendor = Vendor.objects.get(id=vendor_id)
+        notification = Notification.objects.get(vendor=vendor, id=noti_id)
+        notification.seen = True
+        notification.save()
+        return notification
+    
+class VendorProfileUpdateView(generics.RetrieveUpdateAPIView):
+    queryset = Profile.objects.all()
+    serializer_class = ProfileSerializer
+    permission_classes = (AllowAny, )
+    parser_classes = (MultiPartParser, FormParser)
+
+
+class ShopUpdateView(generics.RetrieveUpdateAPIView):
+    queryset = Vendor.objects.all()
+    serializer_class = VendorSerializer
+    permission_classes = (AllowAny, )      
+    parser_classes = (MultiPartParser, FormParser)
+
+
+class ShopAPIView(generics.RetrieveUpdateAPIView):
+    queryset = Product.objects.all()
+    serializer_class = VendorSerializer
+    permission_classes = (AllowAny, )
+
+    def get_object(self):
+        vendor_slug = self.kwargs['vendor_slug']
+
+        vendor = Vendor.objects.get(slug=vendor_slug)
+        return vendor
+    
+
+class ShopProductsAPIView(generics.ListAPIView):
+    serializer_class = ProductSerializer
+    permission_classes = (AllowAny,)
+
+    def get_queryset(self):
+        vendor_slug = self.kwargs['vendor_slug']
+        vendor = Vendor.objects.get(slug=vendor_slug)
+        products = Product.objects.filter(vendor=vendor)
+        return products

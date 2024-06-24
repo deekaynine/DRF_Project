@@ -3,8 +3,8 @@ import { Link, useLocation } from "react-router-dom"
 import UserData from "../plugin/UserData"
 
 function Sidebar() {
-  const currentPathname = window.location.pathname
   const location = useLocation()
+  const currentPathname = window.location.pathname
   const isActiveLink = (currentPath, linkPath) => {
     return currentPath.includes(linkPath)
   }

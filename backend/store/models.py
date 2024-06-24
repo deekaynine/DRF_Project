@@ -81,6 +81,9 @@ class Product(models.Model):
 
     def color(self):
         return Color.objects.filter(product=self)
+    
+    def order_count(self):
+        return OrderItem.objects.filter(product=self).count()
 
     def save(self, *args, **kwargs):
         self.rating = self.product_rating()

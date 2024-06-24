@@ -27,6 +27,12 @@ import MainWrapper from "./layout/MainWrapper.jsx"
 import Settings from "./views/customer/Settings.jsx"
 
 import Dashboard from "./views/vendor/Dashboard"
+import VendorProducts from "./views/vendor/VendorProducts.jsx"
+import VendorOrders from "./views/vendor/VendorOrders.jsx"
+import VendorOrderDetail from "./views/vendor/VendorOrderDetail.jsx"
+import Earning from "./views/vendor/Earnings.jsx"
+import VendorReviews from "./views/vendor/VendorReviews.jsx"
+import VendorReviewDetail from "./views/vendor/VendorReviewDetail.jsx"
 
 function App() {
   return (
@@ -120,6 +126,54 @@ function App() {
               element={
                 <PrivateRoute>
                   <Dashboard />
+                </PrivateRoute>
+              }
+            ></Route>
+            <Route
+              path="/vendor/products/"
+              element={
+                <PrivateRoute>
+                  <VendorProducts />
+                </PrivateRoute>
+              }
+            ></Route>
+            <Route
+              path="/vendor/orders/"
+              element={
+                <PrivateRoute>
+                  <VendorOrders />
+                </PrivateRoute>
+              }
+            ></Route>
+            <Route
+              path="/vendor/orders/:order_oid"
+              element={
+                <PrivateRoute>
+                  <VendorOrderDetail />
+                </PrivateRoute>
+              }
+            ></Route>
+            <Route
+              path="/vendor/earning/"
+              element={
+                <PrivateRoute>
+                  <Earning />
+                </PrivateRoute>
+              }
+            ></Route>
+            <Route
+              path="/vendor/reviews/"
+              element={
+                <PrivateRoute>
+                  <VendorReviews />
+                </PrivateRoute>
+              }
+            ></Route>
+            <Route
+              path="/vendor/reviews/:review_id"
+              element={
+                <PrivateRoute>
+                  <VendorReviewDetail />
                 </PrivateRoute>
               }
             ></Route>

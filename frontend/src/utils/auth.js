@@ -86,8 +86,12 @@ export const setUser = async () => {
   }
 
   if (isAccessTokenExpired(access_token)) {
-    const response = await getRefreshToken(refresh_token)
-    setAuthUser(response.access, response.refresh)
+    try {
+      const response = await getRefreshToken(refresh_token)
+      setAuthUser(response.access, response.refresh)
+    } catch (error) {
+      console.log(error)
+    }
   } else {
     setAuthUser(access_token, refresh_token)
   }
@@ -115,11 +119,16 @@ export const setAuthUser = (access_token, refresh_token) => {
 
 export const getRefreshToken = async () => {
   const refresh_token = Cookie.get("refresh_token")
-  const response = await axios.post("user/token/refresh/", {
-    refresh: refresh_token,
-  })
-
-  return response.data
+  try {
+    const response = await axios.post("user/token/refresh/", {
+      refresh: refresh_token,
+    })
+    return response.data
+  } catch (error) {
+    console.log(error)
+    Cookie.remove("access_token")
+    Cookie.remove("refresh_token")
+  }
 }
 
 export const isAccessTokenExpired = (accessToken) => {

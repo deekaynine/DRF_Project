@@ -153,7 +153,7 @@ function VendorReviewDetail() {
                         <div className="= mt-3">
                           <p>
                             <a
-                              class="btn btn-primary"
+                              className="btn btn-primary"
                               data-bs-toggle="collapse"
                               href="#collapseExample"
                               role="button"
@@ -163,8 +163,8 @@ function VendorReviewDetail() {
                               <i className="fas fa-reply"></i> Reply
                             </a>
                           </p>
-                          <div class="collapse" id="collapseExample">
-                            <div class="card card-body">
+                          <div className="collapse" id="collapseExample">
+                            <div className="card card-body">
                               <form
                                 onSubmit={handleReplySubmit}
                                 method="POST"

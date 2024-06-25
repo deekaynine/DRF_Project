@@ -216,7 +216,7 @@ class ReviewsDetailAPIView(generics.RetrieveUpdateAPIView):
         
         return review
     
-class CouponListAPIView(generics.ListCreateAPIView):
+class CouponListCreateAPIView(generics.ListCreateAPIView):
     serializer_class = CouponSerializer
     queryset = Coupon.objects.all()
     permission_classes = (AllowAny, )
@@ -288,33 +288,6 @@ class CouponStatsAPIView(generics.ListAPIView):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
     
-class CouponCreateAPIView(generics.CreateAPIView):
-    serializer_class = CouponSerializer
-    queryset = Coupon.objects.all()
-    permission_classes = (AllowAny, )
-
-    def create(self, request, *args, **kwargs):
-        payload = request.data
-
-        vendor_id = payload['vendor_id']
-        code = payload['code']
-        discount = payload['discount']
-        active = payload['active']
-
-        print("vendor_id ======", vendor_id)
-        print("code ======", code)
-        print("discount ======", discount)
-        print("active ======", active)
-
-        vendor = Vendor.objects.get(id=vendor_id)
-        coupon = Coupon.objects.create(
-            vendor=vendor,
-            code=code,
-            discount=discount,
-            active=(active.lower() == "true")
-        )
-
-        return Response({"message": "Coupon Created Successfully."}, status=status.HTTP_201_CREATED)
     
 class NotificationUnSeenListAPIView(generics.ListAPIView):
     serializer_class = NotificationSerializer

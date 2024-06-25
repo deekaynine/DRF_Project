@@ -92,11 +92,11 @@ function VendorReviews() {
                             {review.review}
                           </p>
                           <p className="text-dark mb-2 d-flex">
-                            <b>Reply: {""} </b>
-                            {review.reply === null ? (
-                              <span className="ms-2"> No Response</span>
-                            ) : (
-                              <span className="ms-2"> {review.reply}</span>
+                            {review.reply !== null && (
+                              <>
+                                <b>Vendor Reply: {""} </b>
+                                <span className="ms-2"> {review.reply}</span>
+                              </>
                             )}
                           </p>
                           <p className="text-dark mb-2">

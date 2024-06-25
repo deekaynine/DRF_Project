@@ -33,6 +33,8 @@ import VendorOrderDetail from "./views/vendor/VendorOrderDetail.jsx"
 import Earning from "./views/vendor/Earnings.jsx"
 import VendorReviews from "./views/vendor/VendorReviews.jsx"
 import VendorReviewDetail from "./views/vendor/VendorReviewDetail.jsx"
+import VendorCoupon from "./views/vendor/VendorCoupon.jsx"
+import VendorEditCoupon from "./views/vendor/VendorEditCoupon.jsx"
 
 function App() {
   return (
@@ -174,6 +176,22 @@ function App() {
               element={
                 <PrivateRoute>
                   <VendorReviewDetail />
+                </PrivateRoute>
+              }
+            ></Route>
+            <Route
+              path="/vendor/coupon/"
+              element={
+                <PrivateRoute>
+                  <VendorCoupon />
+                </PrivateRoute>
+              }
+            ></Route>
+            <Route
+              path="/vendor/coupon/:coupon_id"
+              element={
+                <PrivateRoute>
+                  <VendorEditCoupon />
                 </PrivateRoute>
               }
             ></Route>

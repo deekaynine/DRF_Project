@@ -20,7 +20,7 @@ function VendorEditCoupon() {
   const fetchData = async () => {
     try {
       await axios
-        .get(`vendor-coupon-detail/${userData?.vendor_id}/${param.id}/`)
+        .get(`vendor-coupon-detail/${userData?.vendor_id}/${param.coupon_id}/`)
         .then((res) => {
           setCoupon(res.data)
         })

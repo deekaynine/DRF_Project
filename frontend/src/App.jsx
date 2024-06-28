@@ -35,6 +35,10 @@ import VendorReviews from "./views/vendor/VendorReviews.jsx"
 import VendorReviewDetail from "./views/vendor/VendorReviewDetail.jsx"
 import VendorCoupon from "./views/vendor/VendorCoupon.jsx"
 import VendorEditCoupon from "./views/vendor/VendorEditCoupon.jsx"
+import VendorNotifications from "./views/vendor/VendorNotifications.jsx"
+import VendorSettings from "./views/vendor/VendorSettings.jsx"
+import VendorShop from "./views/vendor/VendorShop.jsx"
+import VendorAddProduct from "./views/vendor/VendorAddProduct.jsx"
 
 function App() {
   return (
@@ -195,6 +199,38 @@ function App() {
                 </PrivateRoute>
               }
             ></Route>
+            <Route
+              path="/vendor/notifications/"
+              element={
+                <PrivateRoute>
+                  <VendorNotifications />
+                </PrivateRoute>
+              }
+            ></Route>
+            <Route
+              path="/vendor/settings/"
+              element={
+                <PrivateRoute>
+                  <VendorSettings />
+                </PrivateRoute>
+              }
+            ></Route>
+            <Route
+              path="/vendor/:vendor_slug/"
+              element={
+                <PrivateRoute>
+                  <VendorShop />
+                </PrivateRoute>
+              }
+            ></Route>
+            <Route
+              path="/vendor/product/new/"
+              element={
+                <PrivateRoute>
+                  <VendorAddProduct />
+                </PrivateRoute>
+              }
+            />
           </Routes>
         </MainWrapper>
         <StoreFooter />

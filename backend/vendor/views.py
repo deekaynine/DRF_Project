@@ -394,17 +394,20 @@ class ProductCreateView(generics.CreateAPIView):
         serializer.save()
         product_instance = serializer.instance
 
+        # Create arrays to append all incoming objects in their fields
         specifications_data = []
         colors_data = []
         sizes_data = []
         gallery_data = []
+
         # Loop through the keys of self.request.data
         # Example key: specifications[0][title]
         for key, value in self.request.data.items():
             if key.startswith('specifications') and '[title]' in key:
-                # Extract index from key
+                # Extract index from key to reuse and find specific instances
                 index = key.split('[')[1].split(']')[0]
                 title = value
+                # Use index from before to find respective object's field/fields
                 content_key = f'specifications[{index}][content]'
                 content = self.request.data.get(content_key)
                 specifications_data.append(
